@@ -75,8 +75,8 @@ def setup():
     size(700, 700)
 
 def draw():
-    #draw_board(game)
-    draw_menu()
+    draw_board(game)
+    #draw_menu()
 
 
 run()
