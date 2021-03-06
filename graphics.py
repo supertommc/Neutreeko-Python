@@ -9,26 +9,117 @@ game =  [
         ]
 
 
+class Config:
+    SCREEN_WIDTH = 700
+    SCREEN_HEIGHT = 700
+    FONT_PATH = "fonts/Red_Rocket_Expanded_Italic.ttf"
+
+    @staticmethod
+    def get_font_width_height(font_text, font_size):
+        image_font = create_font(Config.FONT_PATH, font_size)
+        font_size = image_font.getsize(font_text)
+        return font_size[0], font_size[1]
+
 
 class Button:
-    def __init__(self, position, width, height, color, text):
+    def __init__(self, position, width, height, color, background_color,  pressed_color_offset, text, text_size):
         self.x, self.y = position
         self.color = color
+        self.background_color = background_color
+        self.pressed_color_offset = pressed_color_offset
         self.width = width
         self.height = height
         self.text = text
+        self.text_size = text_size
+        self.text_width, self.text_height = Config.get_font_width_height(text, text_size)
 
     def display(self):
+        text_size(self.text_size)
         offset = 0
         if self.is_hover():
-            offset = 30
-        fill(self.color[0]+offset, self.color[1]+offset, self.color[2]+offset)
+            offset = self.pressed_color_offset
+        fill(self.background_color[0]+offset, self.background_color[1]+offset, self.background_color[2]+offset)
         rect(self.x, self.y, self.width, self.height)
-        fill(0, 0, 0)
-        text(self.text, self.x + 40, self.y+self.height/2-1)
+        fill(self.color[0], self.color[1], self.color[2])
+
+        text(self.text, self.x + self.width / 2 - text_width(self.text) / 2, self.y + self.height/2 - self.text_height / 2)
 
     def is_hover(self):
         return mouse_x > self.x and mouse_x < self.x + self.width and mouse_y > self.y and mouse_y < self.y + self.height
+
+
+class Menu:
+    def __init__(self):
+        self.__title_text = "NEUTREEKO"
+        self.__title_font_size = 50
+        self.__title_y = 100
+        self.__title_color = (0, 0, 0)
+
+        self.__buttons_width = 370
+        self.__buttons_height = 50
+        self.__buttons_color = (0, 0, 0)
+        self.__buttons_background_color = (90, 90, 90)
+        self.__buttons_pressed_color_offset = 20
+        self.__buttons_font_size = 20
+
+        self.__buttons_block_y = 200
+        self.__buttons_offset = 20
+
+        self.__player_vs_player_button = None
+        self.__player_vs_player_button_text = "PLAYER VS PLAYER"
+
+        self.__player_vs_bot_button = None
+        self.__player_vs_bot_button_text = "PLAYER VS BOT"
+
+        self.__bot_vs_player_button = None
+        self.__bot_vs_player_button_text = "BOT VS PLAYER"
+
+        self.__bot_vs_bot_button = None
+        self.__bot_vs_bot_button_text = "BOT VS BOT"
+
+        self.__create_buttons()
+
+    def __display_title(self):
+        text_size(self.__title_font_size)
+        fill(self.__title_color[0], self.__title_color[1], self.__title_color[2])
+        text(self.__title_text, Config.SCREEN_WIDTH / 2 - text_width(self.__title_text) / 2, self.__title_y)
+
+    def __create_buttons(self):
+        button_y = self.__buttons_block_y
+        button_x = Config.SCREEN_WIDTH / 2 - self.__buttons_width / 2
+
+        self.__player_vs_player_button = Button((button_x, button_y), self.__buttons_width,
+                                                self.__buttons_height, self.__buttons_color,
+                                                self.__buttons_background_color, self.__buttons_pressed_color_offset,
+                                                self.__player_vs_player_button_text, self.__buttons_font_size)
+        button_y += self.__buttons_height + self.__buttons_offset
+
+        self.__player_vs_bot_button = Button((button_x, button_y), self.__buttons_width,
+                                             self.__buttons_height, self.__buttons_color,
+                                             self.__buttons_background_color, self.__buttons_pressed_color_offset,
+                                             self.__player_vs_bot_button_text, self.__buttons_font_size)
+        button_y += self.__buttons_height + self.__buttons_offset
+
+        self.__bot_vs_player_button = Button((button_x, button_y), self.__buttons_width,
+                                             self.__buttons_height, self.__buttons_color,
+                                             self.__buttons_background_color, self.__buttons_pressed_color_offset,
+                                             self.__bot_vs_player_button_text, self.__buttons_font_size)
+        button_y += self.__buttons_height + self.__buttons_offset
+
+        self.__bot_vs_bot_button = Button((button_x, button_y), self.__buttons_width,
+                                          self.__buttons_height, self.__buttons_color,
+                                          self.__buttons_background_color, self.__buttons_pressed_color_offset,
+                                          self.__bot_vs_bot_button_text, self.__buttons_font_size)
+
+    def __display_buttons(self):
+        self.__player_vs_player_button.display()
+        self.__player_vs_bot_button.display()
+        self.__bot_vs_player_button.display()
+        self.__bot_vs_bot_button.display()
+
+    def display(self):
+        self.__display_title()
+        self.__display_buttons()
 
 
 def draw_menu():
@@ -55,6 +146,7 @@ def draw_board(game):
 
     draw_state(game)
 
+
 def draw_piece(piece, position):
     if (piece == 1):
         fill(0, 0, 0)
@@ -72,13 +164,17 @@ def draw_state(game):
 
 
 def setup():
-    size(700, 700)
+    size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
+    game_font = create_font(Config.FONT_PATH, size=50)
+    text_font(game_font)
+
 
 def draw():
-    draw_board(game)
-    #draw_menu()
-
+    # draw_board(game)
+    # draw_menu()
+    Menu().display()
 
 run()
+
 
 
