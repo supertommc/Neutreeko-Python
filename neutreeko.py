@@ -1,6 +1,7 @@
 
 from pprint import pprint
 import datetime
+from timeit import default_timer as timer
 
 # 0 - empty
 # 1 - black
@@ -113,8 +114,20 @@ class MoveGenerator:
         
         return positions
 
-    def generate_all_moves(self, game_int_1, game_int_2):
+    def generate_all_moves(self, game_int_1, game_int_2, piece):
+        if piece == 1:
+            target_game_int = game_int_1
+        else:
+            target_game_int = game_int_2
         game_int_full = game_int_1 | game_int_2
+        ones = self.get_ones_positions(target_game_int)
+
+        all_moves = []
+
+        for i in ones:
+            all_moves.extend(self.generate_moves(i, game_int_full))
+        
+        return all_moves
 
     def generate_moves(self, piece_pos, game_int_full):
         moves = []
@@ -130,16 +143,8 @@ class MoveGenerator:
         
         # Up and Down
         res = self.match_cols(col, game_int_full)
-
-        print(bin(res))
-
         ones = self.get_ones_positions(res)
-
-        print(ones)
-
         idx = self.find_target(ones, piece_pos)
-
-        print(idx)
 
         # Up
         if idx != 0:
@@ -147,23 +152,29 @@ class MoveGenerator:
             if dest != piece_pos:
                 moves.append((piece_pos, dest))
         else:
-            moves.append((piece_pos, col))
+            if col != piece_pos:
+                moves.append((piece_pos, col))
 
+        
         # Down
         if idx != len(ones)-1:
+            print("OLAAA")
             dest = ones[idx+1] - 5
             if dest != piece_pos:
                 moves.append((piece_pos, dest))
         else:
-            moves.append((piece_pos, 5*(row+1)+col))
+            c = 20 + col
+            print("OLAAA")
+            print(c)
+            print(row)
+            print(col)
+            if c != piece_pos:
+                moves.append((piece_pos, c))
 
         # Left And Right
         res = self.match_rows(row, game_int_full)
-        print(bin(res))
         ones = self.get_ones_positions(res)
-        print(ones)
         idx = self.find_target(ones, piece_pos)
-        print(idx)
 
         # Left
         if idx != 0:
@@ -171,54 +182,76 @@ class MoveGenerator:
             if dest != piece_pos:
                 moves.append((piece_pos, dest))
         else:
-            moves.append((piece_pos, 5*row))
+            c = 5*row
+            if c != piece_pos:
+                moves.append((piece_pos, c))
 
+        
         # Right
         if idx != len(ones)-1:
             dest = ones[idx+1] - 1
             if dest != piece_pos:
                 moves.append((piece_pos, dest))
         else:
-            moves.append((piece_pos, 5*row+4))
+            c = 5*row+4
+            if c != piece_pos:
+                moves.append((piece_pos, c))
 
         # Diagonal Up Right Down Left
         res = self.match_diagr(diagr, game_int_full)
-        print("Res:")
-        print(bin(res))
         ones = self.get_ones_positions(res)
-        print(ones)
         idx = self.find_target(ones, piece_pos)
-        print(idx)
-        print(piece_pos)
-        print("Diagr: " + str(diagr))
 
         if idx != 0:
-            dest = ones[idx-1] - 4
+            dest = ones[idx-1] + 4
             if dest != piece_pos:
                 moves.append((piece_pos, dest))
         else:
-            moves.append((piece_pos, (diagr+1)*4) + col)
+            const = diagr + 1
+            c = const+(const//5)*((const%5)+1)*4
+            if c != piece_pos:
+                moves.append((piece_pos, c))
+
+        
+        if idx != len(ones)-1:
+            dest = ones[idx+1] - 4
+            if dest != piece_pos:
+                moves.append((piece_pos, dest))
+        else:
+            const = diagr + 1
+            c = 5*const + (const//5)*((const-9)-(const%5)*5)
+            if c != piece_pos:
+                moves.append((piece_pos, c))
+
+        # Diagonal Up Left Down Right
+        res = self.match_diagl(diagl, game_int_full)
+        ones = self.get_ones_positions(res)
+        idx = self.find_target(ones, piece_pos)
+
+        if idx != 0:
+            dest = ones[idx-1] + 6
+            if dest != piece_pos:
+                moves.append(piece_pos, dest)
+        else:
+            const = diagl + 1
+            c = 4 - const + 6 * (const // 5) * ((const % 5) + 1)
+            if c != piece_pos:
+                moves.append((piece_pos, c))
 
         if idx != len(ones)-1:
-            dest = ones[idx+1]+4
+            dest = ones[idx+1] - 6
             if dest != piece_pos:
-                moves.append((piece_pos, dest))
+                moves.append(piece_pos, dest)
         else:
-            moves.append((piece_pos, piece_pos - (diagr+1)*4))
+            const = diagl + 1
+            c = 4 + 5 * const - (const // 5) * ((const % 5) + 1) * 6
+            if c != piece_pos:
+                moves.append((piece_pos, c))
 
-        print(moves)
-
-
-
-"""
-
-    peças no centro
-    peças juntas sem estarem cercadas
-    peças do adversario no meio das tuas peças
-    casas que tu controlas e o adverario nao
+        return moves
 
 
-"""
+
 
 """
 
@@ -230,189 +263,33 @@ class MoveGenerator:
 
 """
 
+def clear_bit(value, bit):
+    return value & ~(1<<bit)
 
-def valid_coord(coord):
-    return coord >= 0 and coord < 5
+def make_move(game_int_1, game_int_2, move):
+    initial, destination = move
+    mask = 1 << initial
+    if game_int_1 & mask != 0:
+        game_int_1 = clear_bit(game_int_1, initial)
+        game_int_1 = game_int_1 | (1<<destination)
+    elif game_int_2 & mask != 0:
+        game_int_2 = clear_bit(game_int_2, initial)
+        game_int_2 = game_int_2 | (1<<destination)
 
-def valid_coords(x, y):
-    return valid_coord(x) and valid_coord(y)
+    return game_int_1, game_int_2
 
-def different_move(x, y, new_x, new_y):
-    return not (x == new_x and y == new_y)
+def unmake_move(game_int_1, game_int_2, move):
+    initial, destination = move
+    mask = 1 << destination
+    if game_int_1 & mask != 0:
+        game_int_1 = clear_bit(game_int_1, destination)
+        game_int_1 = game_int_1 | (1<<initial)
+    elif game_int_2 & mask != 0:
+        game_int_2 = clear_bit(game_int_2, destination)
+        game_int_2 = game_int_2 | (1<<initial)
 
-def get_ones_positions(game_int):
-    i = 1
-    pos = 0
-    positions = []
-    for j in range(25):
-        if i & game_int != 0:
-            positions.append(pos)
-        i = i << 1
-        pos += 1
-    
-    return positions
-    
+    return game_int_1, game_int_2
 
-def pos_valid(pos):
-    return pos >= 0 and pos <= 24
-
-def generate_moves_faster(game_int, piece_pos):
-    
-    mask = 1
-
-    print(bin(game_int))
-    print(piece_pos)
-
-
-    if game_int & (mask << piece_pos) == 0:
-        return False
-
-    moves = []
-
-    # Up
-
-    if piece_pos > 4:
-        pos = piece_pos-5
-        print(pos)
-        mask = mask << (pos)
-        while game_int & mask == 0 and pos_valid(pos):
-            mask = mask >> 5
-            pos-= 5
-        pos += 5
-        if pos != piece_pos:
-            moves.append((piece_pos, pos))
-            
-    # Down
-    pos = piece_pos+5
-    mask = mask << (pos)
-    print(bin(mask))
-    print(pos)
-    if piece_pos < 20:
-        while game_int & mask == 0 and pos_valid(pos):
-            mask = mask << 5
-            pos += 5
-            print(bin(mask))
-            print(pos)
-        pos -= 5
-        if pos != piece_pos:
-            moves.append((piece_pos, pos))
-
-    # Left
-    return moves
-
-
-def generate_moves(game, piece_pos):
-    
-    x, y = piece_pos
-
-    if game[y][x] == 0:
-        return False
-
-    moves = []
-
-    # Up and Down
-    new_y = y + 1
-    if new_y != 5:
-        while valid_coord(new_y) and game[new_y][x] == 0:
-            new_y += 1
-        if different_move(x, y, x, new_y-1):
-            moves.append((x, y, x, new_y-1))
-
-    new_y = y - 1
-    if new_y != -1:
-        while valid_coord(new_y) and game[new_y][x] == 0:
-            new_y -= 1
-        if different_move(x, y, x, new_y+1):
-            moves.append((x, y, x, new_y+1))
-
-    # Left and Right
-    new_x = x + 1
-    if new_x != 5:
-        while valid_coord(new_x) and game[y][new_x] == 0:
-            new_x += 1
-        if different_move(x, y, new_x-1, y):
-            moves.append((x, y, new_x-1, y))
-
-    new_x = x - 1
-    if new_x != -1:
-        while valid_coord(new_x) and game[y][new_x] == 0:
-            new_x -= 1
-        if different_move(x, y, new_x+1, y):
-            moves.append((x, y, new_x+1, y))
-
-    # Diagonal Up Right
-    new_y = y - 1
-    new_x = x + 1
-    if new_x != 5 and new_y != -1:
-        while valid_coords(new_x, new_y) and game[new_y][new_x] == 0:
-            new_y -= 1
-            new_x += 1
-        if different_move(x, y, new_x-1, new_y+1):
-            moves.append((x, y, new_x-1, new_y+1))
-
-    # Diagonal Down Right
-    new_y = y + 1
-    new_x = x + 1
-    if new_x != 5 and new_y != 5:
-        while valid_coords(new_x, new_y) and game[new_y][new_x] == 0:
-            new_y += 1
-            new_x += 1
-        if different_move(x, y, new_x-1, new_y-1):
-            moves.append((x, y, new_x-1, new_y-1))
-        
-    # Diagonal Up Left
-    new_y = y - 1
-    new_x = x - 1
-    if new_x != -1 and new_y != -1:
-        while valid_coords(new_x, new_y) and game[new_y][new_x] == 0:
-            new_y -= 1
-            new_x -= 1
-        if different_move(x, y, new_x+1, new_y+1):
-            moves.append((x, y, new_x+1, new_y+1))
-
-    # Diagonal Down Left
-    new_y = y + 1
-    new_x = x - 1
-    if new_x != -1 and new_y != 5:
-        while valid_coords(new_x, new_y) and game[new_y][new_x] == 0:
-            new_y += 1
-            new_x -= 1
-        if different_move(x, y, new_x+1, new_y-1):
-            moves.append((x, y, new_x+1, new_y-1))
-
-    return moves
-
-def generate_all_moves(game, piece):
-    moves = []
-    for i in range(len(game)):
-        for j in range(len(game[0])):
-            if game[i][j] == piece:
-                moves.extend(generate_moves(game, (j, i)))
-    return moves
-
-def make_move(game, move):
-    x, y, new_x, new_y = move
-    piece = game[y][x]
-
-    if piece == 0 or game[new_y][new_x] != 0:
-        return False
-    
-    game[y][x] = 0
-    game[new_y][new_x] = piece
-
-    return True
-
-def unmake_move(game, move):
-    x, y, new_x, new_y = move
-    piece = game[new_y][new_x]
-
-    if piece == 0 or game[y][x] != 0:
-        return False
-    
-    game[new_y][new_x] = 0
-    game[y][x] = piece
-
-    return True
 
 # Piece is 1 for black and 2 for white
 def game_to_int(game, piece):
@@ -501,12 +378,8 @@ def minimax(is_max, current_player, game, depth):
         return max(pos_scores)
     else:
         return min(pos_scores)
-    
-"""
-    if is_max:
-        return max(scores)
-    else return min(scores)
-"""
+ 
+
 
 
 game_ =  [
@@ -516,25 +389,50 @@ game_ =  [
             [0, 0, 2, 0, 0],
             [0, 1, 0, 1, 0]
         ]
+"""
+t = game_to_int(game, 1)
+t1 = game_to_int(game, 2)
+full = t | t1
+print(bin(full))
+print()
+print()
+pprint(game)
+
+print("Full: " + str(bin(full)))
+print("t: " + str(bin(t)))
+print("t1: " + str(bin(t1)))
+print()
+t, t1 = make_move(t, t1, (1, 2))
+full = t | t1
+print("Full: " + str(bin(full)))
+print("t: " + str(bin(t)))
+print("t1: " + str(bin(t1)))
+print()
+t, t1 = unmake_move(t, t1, (1, 2))
+full = t | t1
+print("Full: " + str(bin(full)))
+print("t: " + str(bin(t)))
+print("t1: " + str(bin(t1)))
+"""
+
+# ...
+
+
+
 
 t = game_to_int(game, 1)
 t1 = game_to_int(game, 2)
 full = t | t1
-print(bin(t))
-print(get_ones_positions(t))
-print()
-print()
+generator = MoveGenerator()
+start = timer()
+moves = generator.generate_all_moves(t, t1, 1)
+end = timer()
+delta = end-start
 pprint(game)
-print(generate_moves_faster(full, 21))
-
-"""
-start_time = datetime.datetime.now()
-print(generate_all_moves(game, 1))
-end_time = datetime.datetime.now()
-delta = end_time-start_time
+print(moves)
 print("Time: " + str(delta))
 #print("Minimax: " + str(minimax(True, 1, game_, 4)))
-"""
+
 """
 pprint(game_)
 make_move(game_, (1, 0, 0, 1))
@@ -559,7 +457,10 @@ print()
 pprint(game)
 
 """
-
+"""
+t = game_to_int(game, 1)
+t1 = game_to_int(game, 2)
+full = t | t1
 
 print()
 print()
@@ -567,8 +468,8 @@ print()
 pprint(game)
 print()
 generator = MoveGenerator()
-generator.generate_moves(1, full)
-
+generator.generate_moves(23, full)
+"""
 
 
 """

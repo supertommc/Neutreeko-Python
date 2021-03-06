@@ -8,8 +8,6 @@ game =  [
             [0, 1, 0, 1, 0]
         ]
 
-
-
 class Button:
     def __init__(self, position, width, height, color, text):
         self.x, self.y = position
@@ -30,11 +28,9 @@ class Button:
     def is_hover(self):
         return mouse_x > self.x and mouse_x < self.x + self.width and mouse_y > self.y and mouse_y < self.y + self.height
 
-
 def draw_menu():
     button = Button((100, 100), 100, 50, (100, 100, 100), "Play")
     button.display()
-
 
 def draw_board(game):
     # Vertical Lines
