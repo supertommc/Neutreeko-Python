@@ -8,8 +8,6 @@ game =  [
             [0, 1, 0, 1, 0]
         ]
 
-<<<<<<< HEAD
-=======
 
 class Config:
     SCREEN_WIDTH = 700
@@ -23,7 +21,6 @@ class Config:
         return font_size[0], font_size[1]
 
 
->>>>>>> 947c85be23d4aaff49171e9b63c5d4e336f07c1d
 class Button:
     def __init__(self, position, width, height, color, background_color,  pressed_color_offset, text, text_size):
         self.x, self.y = position
@@ -50,8 +47,6 @@ class Button:
     def is_hover(self):
         return mouse_x > self.x and mouse_x < self.x + self.width and mouse_y > self.y and mouse_y < self.y + self.height
 
-<<<<<<< HEAD
-=======
 
 class Menu:
     def __init__(self):
@@ -127,7 +122,6 @@ class Menu:
         self.__display_buttons()
 
 
->>>>>>> 947c85be23d4aaff49171e9b63c5d4e336f07c1d
 def draw_menu():
     button = Button((100, 100), 100, 50, (100, 100, 100), "Play")
     button.display()
