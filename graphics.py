@@ -238,18 +238,18 @@ def draw_state(game):
                 draw_piece(game[i][j], (550 - j * 100, 150 + i * 100))
 
 
-def setup():
-    title("NEUTREEKO")
-    size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
-    game_font = create_font(Config.FONT_PATH, size=50)
-    text_font(game_font)
-
-
-# def setup_game():
+# def setup():
 #     title("NEUTREEKO")
 #     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
 #     game_font = create_font(Config.FONT_PATH, size=50)
 #     text_font(game_font)
+
+
+def setup_game():
+    title("NEUTREEKO")
+    size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
+    game_font = create_font(Config.FONT_PATH, size=50)
+    text_font(game_font)
 
 
 def draw():
