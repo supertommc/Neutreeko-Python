@@ -1,5 +1,6 @@
 from p5 import *
-from config import Config
+from app import *
+from config import Config, State
 
 game = [
     [0, 2, 0, 2, 0],
@@ -42,10 +43,10 @@ class SlideButtonView:
 
         # draw bar
         offset = 0
-        if button.is_hover():
+        if button.is_hover(mouse_x, mouse_y):
             offset = button.get_pressed_color_offset()
         fill(button.get_bar_color()[0] + offset, button.get_bar_color()[1] + offset, button.get_bar_color()[2] + offset)
-        rect(button.get_bar_x(), button.get_bar_y(), button.get_bar_width, button.get_bar_height)
+        rect(button.get_bar_x(), button.get_bar_y(), button.get_bar_width(), button.get_bar_height())
 
         # draw button text
         fill(button.get_color()[0], button.get_color()[1], button.get_color()[2])
@@ -67,23 +68,18 @@ class MenuView:
         ButtonView.display(menu.get_player_vs_bot_button())
         ButtonView.display(menu.get_bot_vs_player_button())
         ButtonView.display(menu.get_bot_vs_bot_button())
-        ButtonView.display(menu.get_depth_slide_button())
+        SlideButtonView.display(menu.get_depth_slide_button())
 
 
 class GameView:
 
-    def __init__(self):
-        self.__game_state = None
-
-    def draw_board(self):
-        self.__draw_lines()
-        self.__draw_state()
-
-    def update(self, new_state):
-        self.__game_state = new_state
+    @staticmethod
+    def display(game_state):
+        GameView.display_lines()
+        GameView.display_state(game_state)
 
     @staticmethod
-    def __draw_lines():
+    def display_lines():
         # Vertical Lines
         line((100, 100), (100, 600))
         line((200, 100), (200, 600))
@@ -100,14 +96,15 @@ class GameView:
         line((100, 500), (600, 500))
         line((100, 600), (600, 600))
 
-    def __draw_state(self):
-        for i in range(len(self.__game_state)):
-            for j in range(len(self.__game_state[0])):
-                if self.__game_state[i][j] != 0:
-                    draw_piece(self.__game_state[i][j], (550 - j * 100, 150 + i * 100))
+    @staticmethod
+    def display_state(game_state):
+        for i in range(len(game_state)):
+            for j in range(len(game_state[0])):
+                if game_state[i][j] != 0:
+                    draw_piece(game_state[i][j], (550 - j * 100, 150 + i * 100))
 
     @staticmethod
-    def __draw_piece(piece, position):
+    def display_piece(piece, position):
         if piece == 1:
             fill(0, 0, 0)
             circle(position, 50)
@@ -116,13 +113,6 @@ class GameView:
             fill(255, 255, 255)
             circle(position, 50)
 
-
-class ViewState:
-    MENU = 0
-    WHITE_PLAYER = 1
-    BLACK_PLAYER = 2
-    GAME_OVER_WHITE = 3
-    GAME_OVER_BLACK = 4
 
 
 class NewtreekoView:
@@ -184,7 +174,7 @@ def draw_state(game):
 #     text_font(game_font)
 
 
-def setup_game():
+def setup():
     title("NEUTREEKO")
     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
     game_font = create_font(Config.FONT_PATH, size=50)
@@ -192,15 +182,33 @@ def setup_game():
 
 
 def draw():
+    clear()
     # draw_board(game)
     # draw_menu()
-    menu.display()
+    # menu.display()
+
+    if newtreeko.get_state() == State.MENU:
+        MenuView.display(newtreeko.get_menu())
+
+    elif newtreeko.get_state() == State.PLAYER_VS_PLAYER:
+        GameView.display(newtreeko.get_game_state())
+
+    elif newtreeko.get_state() == State.PLAYER_VS_BOT:
+        GameView.display(newtreeko.get_game_state())
+
+    elif newtreeko.get_state() == State.BOT_VS_PLAYER:
+        GameView.display(newtreeko.get_game_state())
+
+    elif newtreeko.get_state() == State.BOT_VS_BOT:
+        GameView.display(newtreeko.get_game_state())
 
 
-def mouse_dragged():
-    menu.press()
+def mouse_pressed():
+    newtreeko.process_press(mouse_x, mouse_y)
 
 
-menu = MenuView()
+
+# def mouse_dragged():
+#     menu.press()
 
 run()

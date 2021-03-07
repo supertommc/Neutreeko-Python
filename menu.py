@@ -1,9 +1,10 @@
-from config import Config
+import responses
+import config
 
 
 class Button:
 
-    def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, new_text, new_text_size):
+    def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, new_text, new_text_size, response):
         self._x, self._y = position
         self._color = new_color
         self._background_color = background_color
@@ -12,7 +13,8 @@ class Button:
         self._height = height
         self._text = new_text
         self._text_size = new_text_size
-        self._text_width, self._text_height = Config.get_font_width_height(new_text, new_text_size)
+        self._text_width, self._text_height = config.Config.get_font_width_height(new_text, new_text_size)
+        self._response = response
 
     def get_x(self):
         return self._x
@@ -50,16 +52,20 @@ class Button:
     def set_text(self, new_text, new_text_size):
         self._text = new_text
         self._text_size = new_text_size
-        self._text_width, self._text_height = Config.get_font_width_height(new_text, new_text_size)
+        self._text_width, self._text_height = config.Config.get_font_width_height(new_text, new_text_size)
 
     def is_hover(self, mx, my):
         return self._x < mx < self._x + self._width and self._y < my < self._y + self._height
 
+    def press(self, mx, my):
+        if self.is_hover(mx, my):
+            self._response.on_press()
+
 
 class SlideButton(Button):
 
-    def __init__(self, position, width, height, new_color, background_color, new_bar_color, pressed_color_offset, prefix, new_text_size, values):
-        Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "", new_text_size)
+    def __init__(self, position, width, height, new_color, background_color, new_bar_color, pressed_color_offset, prefix, new_text_size, values, response):
+        Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "", new_text_size, response)
         self.__bar_color = new_bar_color
         self.__prefix = prefix
         self.__values = values
@@ -92,7 +98,7 @@ class Menu:
         self.__title_font_size = 70
         self.__title_y = 100
         self.__title_color = (0, 0, 0)
-        self.__title_text_width, _ = Config.get_font_width_height(self.__title_text, self.__title_font_size)
+        self.__title_text_width, _ = config.Config.get_font_width_height(self.__title_text, self.__title_font_size)
 
         self.__buttons_width = 420
         self.__buttons_height = 50
@@ -107,55 +113,70 @@ class Menu:
 
         self.__player_vs_player_button = None
         self.__player_vs_player_button_text = "PLAYER VS PLAYER"
+        self.__player_vs_player_button_response = responses.StaticResponse(config.State.PLAYER_VS_PLAYER)
 
         self.__player_vs_bot_button = None
         self.__player_vs_bot_button_text = "PLAYER VS BOT"
+        self.__player_vs_bot_button_response = responses.StaticResponse(config.State.PLAYER_VS_BOT)
 
         self.__bot_vs_player_button = None
         self.__bot_vs_player_button_text = "BOT VS PLAYER"
+        self.__bot_vs_player_button_response = responses.StaticResponse(config.State.BOT_VS_PLAYER)
 
         self.__bot_vs_bot_button = None
         self.__bot_vs_bot_button_text = "BOT VS BOT"
+        self.__bot_vs_bot_button_response = responses.StaticResponse(config.State.BOT_VS_BOT)
 
         self.__depth_slide_button = None
         self.__depth_slide_button_prefix = "DEPTH: "
         self.__depth_slide_button_values = range(10)
 
+        self.__buttons_list = []
+
         self.__create_buttons()
 
     def __create_buttons(self):
         button_y = self.__buttons_block_y
-        button_x = Config.SCREEN_WIDTH / 2 - self.__buttons_width / 2
+        button_x = config.Config.SCREEN_WIDTH / 2 - self.__buttons_width / 2
 
         self.__player_vs_player_button = Button((button_x, button_y), self.__buttons_width,
                                                 self.__buttons_height, self.__buttons_color,
                                                 self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                                self.__player_vs_player_button_text, self.__buttons_font_size)
+                                                self.__player_vs_player_button_text, self.__buttons_font_size,
+                                                self.__player_vs_player_button_response)
+        self.__buttons_list.append(self.__player_vs_player_button)
         button_y += self.__buttons_height + self.__buttons_offset
 
         self.__player_vs_bot_button = Button((button_x, button_y), self.__buttons_width,
                                              self.__buttons_height, self.__buttons_color,
                                              self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                             self.__player_vs_bot_button_text, self.__buttons_font_size)
+                                             self.__player_vs_bot_button_text, self.__buttons_font_size,
+                                             self.__player_vs_bot_button_response)
+        self.__buttons_list.append(self.__player_vs_bot_button)
         button_y += self.__buttons_height + self.__buttons_offset
 
         self.__bot_vs_player_button = Button((button_x, button_y), self.__buttons_width,
                                              self.__buttons_height, self.__buttons_color,
                                              self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                             self.__bot_vs_player_button_text, self.__buttons_font_size)
+                                             self.__bot_vs_player_button_text, self.__buttons_font_size,
+                                             self.__bot_vs_player_button_response)
+        self.__buttons_list.append(self.__bot_vs_player_button)
         button_y += self.__buttons_height + self.__buttons_offset
 
         self.__bot_vs_bot_button = Button((button_x, button_y), self.__buttons_width,
                                           self.__buttons_height, self.__buttons_color,
                                           self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                          self.__bot_vs_bot_button_text, self.__buttons_font_size)
+                                          self.__bot_vs_bot_button_text, self.__buttons_font_size,
+                                          self.__bot_vs_bot_button_response)
+        self.__buttons_list.append(self.__bot_vs_bot_button)
         button_y += self.__buttons_height + self.__buttons_offset
 
         self.__depth_slide_button = SlideButton((button_x, button_y), self.__buttons_width,
                                                 self.__buttons_height, self.__buttons_color,
                                                 self.__buttons_background_color, self.__bar_color,
                                                 self.__buttons_pressed_color_offset, self.__depth_slide_button_prefix,
-                                                self.__buttons_font_size, self.__depth_slide_button_values)
+                                                self.__buttons_font_size, self.__depth_slide_button_values,
+                                                None)
 
     def get_title_text(self):
         return self.__title_text
@@ -164,7 +185,7 @@ class Menu:
         return self.__title_font_size
 
     def get_title_x(self):
-        return Config.SCREEN_WIDTH / 2 - self.__title_text_width / 2
+        return config.Config.SCREEN_WIDTH / 2 - self.__title_text_width / 2
 
     def get_title_y(self):
         return self.__title_y
@@ -225,3 +246,7 @@ class Menu:
 
     def get_depth_slide_button(self):
         return self.__depth_slide_button
+
+    def press(self, mx, my):
+        for button in self.__buttons_list:
+            button.press(mx, my)
