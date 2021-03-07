@@ -54,6 +54,30 @@ class OpeningsTree:
 
         for child in node.children:
             self.dfsAuxPrint(child)
+
+    def dfsFindMove(self, stored_moves):
+        node = self.root
+
+        return self.dfsFindMoveAux(node, stored_moves)
+
+    def dfsFindMoveAux(self, node, stored_moves):
+
+        move = 0
+
+        print("Depth node: " + str(node.depth))
+        print("Len stored moves: " + str(len(stored_moves)))
+
+        if (node.depth == len(stored_moves)):
+            print("OLAAA")
+            print(node.move)
+            return node.move
+        
+        for child in node.children:
+            if child.move != stored_moves[child.depth-1]:
+                continue
+            move = self.dfsFindMoveAux(child, stored_moves)
+
+        return move
         
 
 
@@ -73,23 +97,7 @@ class OpeningsBook:
         translated_move_1 = self.translateMoveNotation(move1)
         translated_move_2 = self.translateMoveNotation(move2)
         return translated_move_1[0], translated_move_1[1], translated_move_2[0], translated_move_2[1]
-    """
-    def readNextMove(self, line, idx):
-        for i, char in enumerate(line[idx:]):
-            if char.isdigit():
-                if line[idx+i+1].isdigit():
-                    print(line[idx+i:idx+i+2])
-                    if line[idx+i+2] == ">":
-                        print("Ignoring")
-                        continue
-                    return line[idx+i+4:idx+i+4+5], int(line[idx+i:idx+i+2]), idx+i+4+5
-                else:
-                    print(line[idx+i:idx+i+1])
-                    if line[idx+i+i] == ">":
-                        print("Ignoring")
-                        continue
-                    return line[idx+i+3:idx+i+3+5], int(line[idx+i]), idx+i+3+5
-    """
+
     def readNextMove(self, line, idx):
         i = 0
         while i < len(line[idx:]):
@@ -126,7 +134,9 @@ class OpeningsBook:
                 child = OpeningsNode(move_depth, move, parent)
                 parent.addChildNode(child)
                 possible_parents.append(child)
-            
+    
+    def find_next_move(self, stored_moves):
+        return self.tree.dfsFindMove(stored_moves)
 
         
 
@@ -134,4 +144,4 @@ book = OpeningsBook()
 
 book.loadOpenings("openings.txt")
 
-book.tree.dfsPrint()
+print(book.find_next_move([(1, 4, 2, 4), (2, 3, 2, 2)]))
