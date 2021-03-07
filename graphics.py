@@ -2,14 +2,6 @@ from p5 import *
 from app import *
 from config import Config, State
 
-game = [
-    [0, 2, 0, 2, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 2, 0, 0],
-    [0, 1, 0, 1, 0]
-]
-
 
 class ButtonView:
     @staticmethod
@@ -54,7 +46,6 @@ class SlideButtonView:
 
 
 class MenuView:
-
     @staticmethod
     def display(menu):
 
@@ -72,7 +63,6 @@ class MenuView:
 
 
 class GameView:
-
     @staticmethod
     def display(game_state):
         GameView.display_lines()
@@ -101,7 +91,7 @@ class GameView:
         for i in range(len(game_state)):
             for j in range(len(game_state[0])):
                 if game_state[i][j] != 0:
-                    draw_piece(game_state[i][j], (550 - j * 100, 150 + i * 100))
+                    GameView.display_piece(game_state[i][j], (550 - j * 100, 150 + i * 100))
 
     @staticmethod
     def display_piece(piece, position):
@@ -114,66 +104,6 @@ class GameView:
             circle(position, 50)
 
 
-
-class NewtreekoView:
-
-    def __init__(self):
-        self.__menu_view = MenuView()
-        self.__game_view = GameView()
-
-
-
-
-
-
-def draw_menu():
-    button = Button((100, 100), 100, 50, (100, 100, 100), "Play")
-    button.display()
-
-
-def draw_board(game):
-    # Vertical Lines
-    line((100, 100), (100, 600))
-    line((200, 100), (200, 600))
-    line((300, 100), (300, 600))
-    line((400, 100), (400, 600))
-    line((500, 100), (500, 600))
-    line((600, 100), (600, 600))
-
-    # Horizontal Lines
-    line((100, 100), (600, 100))
-    line((100, 200), (600, 200))
-    line((100, 300), (600, 300))
-    line((100, 400), (600, 400))
-    line((100, 500), (600, 500))
-    line((100, 600), (600, 600))
-
-    draw_state(game)
-
-
-def draw_piece(piece, position):
-    if (piece == 1):
-        fill(0, 0, 0)
-        circle(position, 50)
-    elif piece == 2:
-        fill(255, 255, 255)
-        circle(position, 50)
-
-
-def draw_state(game):
-    for i in range(len(game)):
-        for j in range(len(game[0])):
-            if game[i][j] != 0:
-                draw_piece(game[i][j], (550 - j * 100, 150 + i * 100))
-
-
-# def setup():
-#     title("NEUTREEKO")
-#     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
-#     game_font = create_font(Config.FONT_PATH, size=50)
-#     text_font(game_font)
-
-
 def setup():
     title("NEUTREEKO")
     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
@@ -183,9 +113,6 @@ def setup():
 
 def draw():
     clear()
-    # draw_board(game)
-    # draw_menu()
-    # menu.display()
 
     if newtreeko.get_state() == State.MENU:
         MenuView.display(newtreeko.get_menu())
