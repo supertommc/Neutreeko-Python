@@ -1,3 +1,6 @@
+import graphics
+
+
 class State:
     MENU = 0
     PLAYER_VS_PLAYER = 1
@@ -9,8 +12,8 @@ class State:
 
 class Newtreeko:
 
-    def __init__(self, initial_application_state):
-        self.__current_application_state = initial_application_state
+    def __init__(self):
+        self.__current_state = 0
 
         self.__current_game_state = [
                                         [0, 2, 0, 2, 0],
@@ -22,3 +25,7 @@ class Newtreeko:
 
         self.__current_player = 1
         self.__depth = 6
+
+        self.__menu = graphics.MenuView()
+
+    def process_press(self, x, y):
