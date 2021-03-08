@@ -66,5 +66,11 @@ class Neutreeko:
         elif self.__state == config.State.BOT_VS_BOT:
             self.__game_board.press(mx, my)
 
+    def update(self):
+
+        if self.__game_board.piece_is_moving():
+            piece = self.__game_board.get_piece_moving()
+
+
 
 neutreeko = Neutreeko()

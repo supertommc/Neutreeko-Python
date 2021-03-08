@@ -146,16 +146,24 @@ def draw():
         MenuView.display(neutreeko.get_menu())
 
     elif neutreeko.get_state() == State.PLAYER_VS_PLAYER:
+        # TODO: Uncomment this
+        # neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
     elif neutreeko.get_state() == State.PLAYER_VS_BOT:
+        # neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
     elif neutreeko.get_state() == State.BOT_VS_PLAYER:
+        # neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
     elif neutreeko.get_state() == State.BOT_VS_BOT:
+        # neutreeko.update()
         BoardView.display(neutreeko.get_board())
+
+    else:
+        print("Invalid state!")
 
 
 def mouse_pressed():

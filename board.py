@@ -1,5 +1,7 @@
 from moveGenerator import MoveGenerator
 from pprint import pprint
+
+
 class Piece:
 
     def __init__(self, position, radius, player, color):
@@ -78,7 +80,7 @@ class Tile:
             return self.__piece.get_player()
         return 0
 
-    def set_piece(self, new_piece):
+    def insert_piece(self, new_piece):
         self.__piece = new_piece
         radius = self.__piece.get_radius()
         self.__piece.set_position((self.__x + radius, self.__y + radius))
@@ -97,14 +99,86 @@ class Tile:
             self.__is_pressed = not self.__is_pressed
 
 
+class Move:
+
+    def __init__(self):
+        self.__move_speed = 1
+
+        self.__start_tile = None
+        self.__dest_tile = None
+        self.__piece = None
+        self.__direction = None
+
+    def set_start_tile(self, start_tile):
+        self.__start_tile = start_tile
+
+    def set_dest_tile(self, dest_tile):
+        self.__dest_tile = dest_tile
+
+    def set_piece(self, piece):
+        self.__piece = piece
+
+    def get_start_tile(self):
+        return self.__start_tile
+
+    def get_dest_tile(self):
+        return self.__dest_tile
+
+    def get_coords(self):
+        start_x, start_y = self.__start_tile.get_coords()
+        dest_x, dest_y = self.__dest_tile.get_coords()
+
+        return start_x, start_y, dest_x, dest_y
+
+    def is_start_tile_selected(self):
+        return self.__start_tile is not None
+
+    def is_dest_tile_selected(self):
+        return self.__dest_tile is not None
+
+    def update_direction(self):
+        x = 0
+        y = 0
+        start_x, start_y, dest_x, dest_y = self.get_coords()
+
+        if dest_x - start_x != 0:
+            x = (dest_x - start_x) / abs(dest_x - start_x)
+
+        if dest_y - start_y != 0:
+            y = (dest_y - start_y) / abs(dest_y - start_y)
+
+        self.__direction = (x, y)
+
+    def update_piece_position(self):
+        piece_x, piece_y = self.__piece.get_position
+        direction_x, direction_y = self.__direction
+
+        self.__piece.set_position((piece_x + direction_x * self.__move_speed, piece_y + direction_y * self.__move_speed))
+
+    def is_happening(self):
+        return self.__piece is not None
+
+    def start(self):
+        self.__piece = self.__start_tile.extract_piece()
+
+    def finish(self):
+        self.__dest_tile.insert_piece(self.__piece)
+        self.reset()
+
+    def reset(self):
+        self.__piece = None
+        self.__start_tile = None
+        self.__dest_tile = None
+        self.__direction = None
+
+
 class Board:
 
     def __init__(self, state, neutreeko):
         self.__state = state
         self.__neutreeko = neutreeko
 
-        self.__start_tile = None
-        self.__dest_tile = None
+        self.__move = Move()
 
         self.__x = 100
         self.__y = 100
@@ -118,6 +192,7 @@ class Board:
         self.__player_2_pieces_color = (0, 0, 0)
 
         self.__player_turn = 1
+        self.__piece_moving = None
 
         self.__create_tiles()
         self.__insert_pieces_from_state()
@@ -138,7 +213,7 @@ class Board:
                 if self.__state[row][col] != 0:
                     piece = Piece(self.__get_piece_position(row, col), self.__pieces_radius, self.__state[row][col],
                                   self.__get_piece_color(self.__state[row][col]))
-                    self.__tiles[i].set_piece(piece)
+                    self.__tiles[i].insert_piece(piece)
                 i += 1
 
     @staticmethod
@@ -159,44 +234,50 @@ class Board:
         self.__state = new_state
         self.__insert_pieces_from_state()
 
-    def update_state(self):
+    def piece_is_moving(self):
+        return self.__piece_moving is not None
+
+    def get_piece_moving(self):
+        return self.__piece_moving
+
+    def __update_state(self):
         self.__state = [[0] * 5 for _ in range(5)]
 
         for tile in self.__tiles:
             self.__state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
 
+    def __change_turn(self):
+        self.__player_turn = 2 if self.__player_turn == 1 else 1
+
+    def finish_piece_move(self):
+        self.__move.finish()
+        self.__change_turn()
+        self.__update_state()
+
     def press(self, mx, my):
 
-        if self.__start_tile is None:
+        if not self.__move.is_start_tile_selected():
             for tile in self.__tiles:
                 if tile.is_hover(mx, my):
-                    self.__start_tile = tile
+                    self.__move.set_start_tile(tile)
                     break
+            print("Start tile: {}".format(self.__move.get_start_tile().get_coords()))
 
-            print("Start tile: {}".format(self.__start_tile.get_coords()))
-            self.__dest_tile = None
-
-        elif self.__dest_tile is None:
+        elif not self.__move.is_dest_tile_selected():
             for tile in self.__tiles:
                 if tile.is_hover(mx, my):
-                    self.__dest_tile = tile
+                    self.__move.set_dest_tile(tile)
                     break
-
-            print("Dest tile: {}".format(self.__dest_tile.get_coords()))
+            print("Dest tile: {}".format(self.__move.get_dest_tile().get_coords()))
 
             if self.__move_is_valid():
-                # move pieces
-                piece = self.__start_tile.extract_piece()
-                self.__dest_tile.set_piece(piece)
-                self.__player_turn = 2 if self.__player_turn == 1 else 1
-                self.update_state()
+                self.__move.start()
+                self.finish_piece_move()
                 pprint(self.__state)
 
             else:
                 print("Invalid Move!")
-
-            self.__start_tile = None
-            self.__dest_tile = None
+                self.__move.reset()
 
     def apply_move(self, move):
         initial_x, initial_y, final_x, final_y = move
@@ -213,12 +294,12 @@ class Board:
 
         piece = initial_tile.extract_piece()
         final_tile.set_piece(piece)
+        self.__change_turn()
+        self.__update_state()
+        pprint(self.__state)
 
     def __move_is_valid(self):
-        initial_x, initial_y = self.__start_tile.get_coords()
-        final_x, final_y = self.__dest_tile.get_coords()
-
-        move = (initial_x, initial_y, final_x, final_y)
+        move = self.__move.get_coords()
         valid_moves = MoveGenerator.generate_all_moves(self.__state, self.__player_turn)
 
         print("Player turn: {}".format(self.__player_turn))
