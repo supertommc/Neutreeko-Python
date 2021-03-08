@@ -176,7 +176,7 @@ class Menu:
                                                 self.__buttons_background_color, self.__bar_color,
                                                 self.__buttons_pressed_color_offset, self.__depth_slide_button_prefix,
                                                 self.__buttons_font_size, self.__depth_slide_button_values,
-                                                None)
+                                                None)  # TODO: create response for slide button
 
     def get_title_text(self):
         return self.__title_text
