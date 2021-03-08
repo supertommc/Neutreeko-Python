@@ -54,5 +54,17 @@ class Newtreeko:
         if self.__state == config.State.MENU:
             self.__game_menu.press(mx, my)
 
+        elif self.__state == config.State.PLAYER_VS_PLAYER:
+            self.__game_board.press(mx, my)
+
+        elif self.__state == config.State.PLAYER_VS_BOT:
+            self.__game_board.press(mx, my)
+
+        elif self.__state == config.State.BOT_VS_PLAYER:
+            self.__game_board.press(mx, my)
+
+        elif self.__state == config.State.BOT_VS_BOT:
+            self.__game_board.press(mx, my)
+
 
 newtreeko = Newtreeko()

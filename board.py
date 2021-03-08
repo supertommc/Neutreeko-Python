@@ -24,6 +24,9 @@ class Piece:
     def get_color(self):
         return self.__color
 
+    def set_position(self, new_position):
+        self.__x, self.__y = new_position
+
 
 class Tile:
 
@@ -59,12 +62,17 @@ class Tile:
 
     def set_piece(self, new_piece):
         self.__piece = new_piece
+        radius = self.__piece.get_radius()
+        self.__piece.set_position((self.__x + radius, self.__y + radius))
 
     def has_piece(self):
         return self.__piece is not None
 
     def is_hover(self, mx, my):
         return self.__x < mx < self.__x + self.__edge and self.__y < my < self.__y + self.__edge
+
+    def is_pressed(self):
+        return self.__is_pressed
 
     def press(self, mx, my):
         if self.is_hover(mx, my):
@@ -75,6 +83,9 @@ class Board:
 
     def __init__(self, state):
         self.__state = state
+
+        self.__start_tile = None
+        self.__dest_tile = None
 
         self.__x = 100
         self.__y = 100
@@ -93,11 +104,11 @@ class Board:
     def __create_tiles(self):
         for row in range(5):
             for col in range(5):
-                tile = Tile((row, col), self.__get_tile_position(row, col), self.__edge // 5, self.__tiles_color)
+                tile = Tile((col, row), self.__get_tile_position(col, row), self.__edge // 5, self.__tiles_color)
                 self.__tiles.append(tile)
 
-    def __get_tile_position(self, row, col):
-        return self.__x * (row + 1), self.__y * (col + 1)
+    def __get_tile_position(self, col, row):
+        return self.__x * (col + 1), self.__y * (row + 1)
 
     def __insert_pieces_from_state(self):
         i = 0
@@ -128,5 +139,27 @@ class Board:
         self.__insert_pieces_from_state()
 
     def press(self, mx, my):
-        for tile in self.__tiles:
-            tile.press(mx, my)
+
+        if self.__start_tile is None:
+            for tile in self.__tiles:
+                if tile.is_hover(mx, my):
+                    self.__start_tile = tile
+                    break
+
+            print("Start tile: {}".format(self.__start_tile.get_coords()))
+            self.__dest_tile = None
+
+        elif self.__dest_tile is None:
+            for tile in self.__tiles:
+                if tile.is_hover(mx, my):
+                    self.__dest_tile = tile
+                    break
+
+            print("Dest tile: {}".format(self.__dest_tile.get_coords()))
+
+            piece = self.__start_tile.get_piece()
+
+            self.__dest_tile.set_piece(piece)
+
+            self.__start_tile = None
+            self.__dest_tile = None
