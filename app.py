@@ -1,5 +1,6 @@
 import config
 import menu
+import board
 
 
 class Newtreeko:
@@ -16,6 +17,7 @@ class Newtreeko:
             [0, 1, 0, 1, 0]
         ]
         self.__game_menu = menu.Menu()
+        self.__game_board = board.Board(self.__game_state)
 
     def get_state(self):
         return self.__state
@@ -32,6 +34,9 @@ class Newtreeko:
     def get_menu(self):
         return self.__game_menu
 
+    def get_board(self):
+        return self.__game_board
+
     def set_state(self, new_state):
         self.__state = new_state
 
@@ -45,7 +50,9 @@ class Newtreeko:
         self.__game_state = new_game_state
 
     def process_press(self, mx, my):
-        self.__game_menu.press(mx, my)
+
+        if self.__state == config.State.MENU:
+            self.__game_menu.press(mx, my)
 
 
 newtreeko = Newtreeko()

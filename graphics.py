@@ -104,6 +104,34 @@ class GameView:
             circle(position, 50)
 
 
+class PieceView:
+
+    @staticmethod
+    def display(piece):
+        fill(piece.get_color()[0], piece.get_color()[1], piece.get_color()[2])
+        circle(piece.get_position(), piece.get_radius())
+
+
+class TileView:
+
+    @staticmethod
+    def display(tile):
+        fill(tile.get_color()[0], tile.get_color()[1], tile.get_color()[2])
+        square(tile.get_position(), tile.get_edge())
+
+
+class BoardView:
+
+    @staticmethod
+    def display(game_board):
+        for tile in game_board.get_tiles():
+            TileView.display(tile)
+
+        for tile in game_board.get_tiles():
+            if tile.has_piece():
+                PieceView.display(tile.get_piece())
+
+
 def setup():
     title("NEUTREEKO")
     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
@@ -118,16 +146,16 @@ def draw():
         MenuView.display(newtreeko.get_menu())
 
     elif newtreeko.get_state() == State.PLAYER_VS_PLAYER:
-        GameView.display(newtreeko.get_game_state())
+        BoardView.display(newtreeko.get_board())
 
     elif newtreeko.get_state() == State.PLAYER_VS_BOT:
-        GameView.display(newtreeko.get_game_state())
+        BoardView.display(newtreeko.get_board())
 
     elif newtreeko.get_state() == State.BOT_VS_PLAYER:
-        GameView.display(newtreeko.get_game_state())
+        BoardView.display(newtreeko.get_board())
 
     elif newtreeko.get_state() == State.BOT_VS_BOT:
-        GameView.display(newtreeko.get_game_state())
+        BoardView.display(newtreeko.get_board())
 
 
 def mouse_pressed():
