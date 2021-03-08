@@ -3,7 +3,7 @@ import menu
 import board
 
 
-class Newtreeko:
+class Neutreeko:
 
     def __init__(self):
         self.__state = config.State.MENU
@@ -17,7 +17,7 @@ class Newtreeko:
             [0, 1, 0, 1, 0]
         ]
         self.__game_menu = menu.Menu()
-        self.__game_board = board.Board(self.__game_state)
+        self.__game_board = board.Board(self.__game_state, self)
 
     def get_state(self):
         return self.__state
@@ -67,4 +67,4 @@ class Newtreeko:
             self.__game_board.press(mx, my)
 
 
-newtreeko = Newtreeko()
+neutreeko = Neutreeko()

@@ -6,4 +6,4 @@ class StaticResponse:
         self.__next_state = next_state
 
     def on_press(self):
-        app.newtreeko.set_state(self.__next_state)
+        app.neutreeko.set_state(self.__next_state)

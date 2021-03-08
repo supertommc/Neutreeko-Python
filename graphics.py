@@ -142,24 +142,24 @@ def setup():
 def draw():
     clear()
 
-    if newtreeko.get_state() == State.MENU:
-        MenuView.display(newtreeko.get_menu())
+    if neutreeko.get_state() == State.MENU:
+        MenuView.display(neutreeko.get_menu())
 
-    elif newtreeko.get_state() == State.PLAYER_VS_PLAYER:
-        BoardView.display(newtreeko.get_board())
+    elif neutreeko.get_state() == State.PLAYER_VS_PLAYER:
+        BoardView.display(neutreeko.get_board())
 
-    elif newtreeko.get_state() == State.PLAYER_VS_BOT:
-        BoardView.display(newtreeko.get_board())
+    elif neutreeko.get_state() == State.PLAYER_VS_BOT:
+        BoardView.display(neutreeko.get_board())
 
-    elif newtreeko.get_state() == State.BOT_VS_PLAYER:
-        BoardView.display(newtreeko.get_board())
+    elif neutreeko.get_state() == State.BOT_VS_PLAYER:
+        BoardView.display(neutreeko.get_board())
 
-    elif newtreeko.get_state() == State.BOT_VS_BOT:
-        BoardView.display(newtreeko.get_board())
+    elif neutreeko.get_state() == State.BOT_VS_BOT:
+        BoardView.display(neutreeko.get_board())
 
 
 def mouse_pressed():
-    newtreeko.process_press(mouse_x, mouse_y)
+    neutreeko.process_press(mouse_x, mouse_y)
 
 
 
