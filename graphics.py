@@ -62,53 +62,21 @@ class MenuView:
         SlideButtonView.display(menu.get_depth_slide_button())
 
 
-class GameView:
-    @staticmethod
-    def display(game_state):
-        GameView.display_lines()
-        GameView.display_state(game_state)
-
-    @staticmethod
-    def display_lines():
-        # Vertical Lines
-        line((100, 100), (100, 600))
-        line((200, 100), (200, 600))
-        line((300, 100), (300, 600))
-        line((400, 100), (400, 600))
-        line((500, 100), (500, 600))
-        line((600, 100), (600, 600))
-
-        # Horizontal Lines
-        line((100, 100), (600, 100))
-        line((100, 200), (600, 200))
-        line((100, 300), (600, 300))
-        line((100, 400), (600, 400))
-        line((100, 500), (600, 500))
-        line((100, 600), (600, 600))
-
-    @staticmethod
-    def display_state(game_state):
-        for i in range(len(game_state)):
-            for j in range(len(game_state[0])):
-                if game_state[i][j] != 0:
-                    GameView.display_piece(game_state[i][j], (550 - j * 100, 150 + i * 100))
-
-    @staticmethod
-    def display_piece(piece, position):
-        if piece == 1:
-            fill(0, 0, 0)
-            circle(position, 50)
-
-        elif piece == 2:
-            fill(255, 255, 255)
-            circle(position, 50)
-
-
 class PieceView:
 
     @staticmethod
     def display(piece):
-        fill(piece.get_color()[0], piece.get_color()[1], piece.get_color()[2])
+        if piece.get_player() == 1:
+            image(Config.white_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
+
+        elif piece.get_player() == 2:
+            image(Config.black_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
+
+    @staticmethod
+    def clear(piece):
+        background_color = config.Config.BACKGROUND_COLOR
+        fill(background_color[0], background_color[1], background_color[2])
+        no_stroke()
         circle(piece.get_position(), piece.get_radius())
 
 
@@ -124,9 +92,11 @@ class BoardView:
 
     @staticmethod
     def display(game_board):
-        for tile in game_board.get_tiles():
-            TileView.display(tile)
 
+        # display board
+        image(Config.board_image, (100, 100))
+
+        # display pieces
         for tile in game_board.get_tiles():
             if tile.has_piece():
                 PieceView.display(tile.get_piece())
@@ -137,6 +107,9 @@ def setup():
     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
     game_font = create_font(Config.FONT_PATH, size=50)
     text_font(game_font)
+    Config.board_image = load_image(Config.BOARD_IMAGE_PATH)
+    Config.white_piece_image = load_image(Config.WHITE_PIECE_IMAGE_PATH)
+    Config.black_piece_image = load_image(Config.BLACK_PIECE_IMAGE_PATH)
 
 
 def draw():
@@ -146,22 +119,38 @@ def draw():
         MenuView.display(neutreeko.get_menu())
 
     elif neutreeko.get_state() == State.PLAYER_VS_PLAYER:
-        neutreeko.update()
+
         BoardView.display(neutreeko.get_board())
+
         if neutreeko.get_board().get_move().is_happening():
             PieceView.display(neutreeko.get_board().get_move().get_piece())
 
-    elif neutreeko.get_state() == State.PLAYER_VS_BOT:
         neutreeko.update()
+
+
+    elif neutreeko.get_state() == State.PLAYER_VS_BOT:
         BoardView.display(neutreeko.get_board())
+
+        if neutreeko.get_board().get_move().is_happening():
+            PieceView.display(neutreeko.get_board().get_move().get_piece())
+
+        neutreeko.update()
 
     elif neutreeko.get_state() == State.BOT_VS_PLAYER:
-        neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
-    elif neutreeko.get_state() == State.BOT_VS_BOT:
+        if neutreeko.get_board().get_move().is_happening():
+            PieceView.display(neutreeko.get_board().get_move().get_piece())
+
         neutreeko.update()
+
+    elif neutreeko.get_state() == State.BOT_VS_BOT:
         BoardView.display(neutreeko.get_board())
+
+        if neutreeko.get_board().get_move().is_happening():
+            PieceView.display(neutreeko.get_board().get_move().get_piece())
+
+        neutreeko.update()
 
     else:
         print("Invalid state!")

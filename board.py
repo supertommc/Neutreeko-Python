@@ -106,7 +106,7 @@ class Tile:
 class Move:
 
     def __init__(self):
-        self.__move_speed = 10
+        self.__move_speed = 40
 
         self.__start_tile = None
         self.__dest_tile = None
