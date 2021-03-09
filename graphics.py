@@ -146,20 +146,21 @@ def draw():
         MenuView.display(neutreeko.get_menu())
 
     elif neutreeko.get_state() == State.PLAYER_VS_PLAYER:
-        # TODO: Uncomment this
-        # neutreeko.update()
+        neutreeko.update()
         BoardView.display(neutreeko.get_board())
+        if neutreeko.get_board().get_move().is_happening():
+            PieceView.display(neutreeko.get_board().get_move().get_piece())
 
     elif neutreeko.get_state() == State.PLAYER_VS_BOT:
-        # neutreeko.update()
+        neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
     elif neutreeko.get_state() == State.BOT_VS_PLAYER:
-        # neutreeko.update()
+        neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
     elif neutreeko.get_state() == State.BOT_VS_BOT:
-        # neutreeko.update()
+        neutreeko.update()
         BoardView.display(neutreeko.get_board())
 
     else:
@@ -169,9 +170,5 @@ def draw():
 def mouse_pressed():
     neutreeko.process_press(mouse_x, mouse_y)
 
-
-
-# def mouse_dragged():
-#     menu.press()
 
 run()

@@ -42,6 +42,7 @@ class Tile:
         # TODO: self.__pressed_color = pressed_color
         self.__is_pressed = False
         self.__piece = None
+        self.__piece_radius = 50
 
     def get_x(self):
         return self.__x
@@ -69,6 +70,9 @@ class Tile:
 
     def get_piece(self):
         return self.__piece
+
+    def get_piece_position(self):
+        return self.__x + self.__piece_radius, self.__y + self.__piece_radius
 
     def extract_piece(self):
         piece = self.__piece
@@ -102,7 +106,7 @@ class Tile:
 class Move:
 
     def __init__(self):
-        self.__move_speed = 1
+        self.__move_speed = 10
 
         self.__start_tile = None
         self.__dest_tile = None
@@ -124,6 +128,9 @@ class Move:
     def get_dest_tile(self):
         return self.__dest_tile
 
+    def get_piece(self):
+        return self.__piece
+
     def get_coords(self):
         start_x, start_y = self.__start_tile.get_coords()
         dest_x, dest_y = self.__dest_tile.get_coords()
@@ -136,7 +143,7 @@ class Move:
     def is_dest_tile_selected(self):
         return self.__dest_tile is not None
 
-    def update_direction(self):
+    def __update_direction(self):
         x = 0
         y = 0
         start_x, start_y, dest_x, dest_y = self.get_coords()
@@ -150,16 +157,23 @@ class Move:
         self.__direction = (x, y)
 
     def update_piece_position(self):
-        piece_x, piece_y = self.__piece.get_position
+        piece_x, piece_y = self.__piece.get_position()
         direction_x, direction_y = self.__direction
 
         self.__piece.set_position((piece_x + direction_x * self.__move_speed, piece_y + direction_y * self.__move_speed))
+
+    def piece_reach_dest_position(self):
+        piece_x, piece_y = self.__piece.get_position()
+        dest_x, dest_y = self.__dest_tile.get_piece_position()
+
+        return (piece_x == dest_x) and (piece_y == dest_y)
 
     def is_happening(self):
         return self.__piece is not None
 
     def start(self):
         self.__piece = self.__start_tile.extract_piece()
+        self.__update_direction()
 
     def finish(self):
         self.__dest_tile.insert_piece(self.__piece)
@@ -192,7 +206,6 @@ class Board:
         self.__player_2_pieces_color = (0, 0, 0)
 
         self.__player_turn = 1
-        self.__piece_moving = None
 
         self.__create_tiles()
         self.__insert_pieces_from_state()
@@ -211,14 +224,10 @@ class Board:
         for row in range(len(self.__state)):
             for col in range(len(self.__state[0])):
                 if self.__state[row][col] != 0:
-                    piece = Piece(self.__get_piece_position(row, col), self.__pieces_radius, self.__state[row][col],
+                    piece = Piece((0, 0), self.__pieces_radius, self.__state[row][col],
                                   self.__get_piece_color(self.__state[row][col]))
                     self.__tiles[i].insert_piece(piece)
                 i += 1
-
-    @staticmethod
-    def __get_piece_position(row, col):
-        return 550 - col * 100, 150 + row * 100
 
     def __get_piece_color(self, player):
         if player == 1:
@@ -230,15 +239,12 @@ class Board:
     def get_tiles(self):
         return self.__tiles
 
+    def get_move(self):
+        return self.__move
+
     def set_state(self, new_state):
         self.__state = new_state
         self.__insert_pieces_from_state()
-
-    def piece_is_moving(self):
-        return self.__piece_moving is not None
-
-    def get_piece_moving(self):
-        return self.__piece_moving
 
     def __update_state(self):
         self.__state = [[0] * 5 for _ in range(5)]
@@ -272,7 +278,7 @@ class Board:
 
             if self.__move_is_valid():
                 self.__move.start()
-                self.finish_piece_move()
+                # self.finish_piece_move()
                 pprint(self.__state)
 
             else:

@@ -68,9 +68,15 @@ class Neutreeko:
 
     def update(self):
 
-        if self.__game_board.piece_is_moving():
-            piece = self.__game_board.get_piece_moving()
+        move = self.__game_board.get_move()
 
+        if move.is_happening():
+
+            if move.piece_reach_dest_position():
+                self.__game_board.finish_piece_move()
+
+            else:
+                move.update_piece_position()
 
 
 neutreeko = Neutreeko()
