@@ -5,6 +5,9 @@ from timeit import default_timer as timer
 
 class AI:
 
+    MAX = 99999999
+    MIN = -99999999
+
     def __init__(self, piece):
         self.rel_scores = [
                                 [1, 2, 2, 2, 1],

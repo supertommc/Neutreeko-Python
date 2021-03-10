@@ -22,9 +22,6 @@ class Neutreeko:
         self.__game_menu = menu.Menu()
         self.__game_board = board.Board(self.__game_state, self)
 
-        self.__bot_1 = ai.AI()
-        self.__bot_2 = ai.AI()
-
     def get_state(self):
         return self.__state
 
@@ -93,7 +90,7 @@ class Neutreeko:
 
                     print("Board input:")
                     pprint(self.__game_board.get_state())
-                    score, move = self.__bot_1.minimax_alpha_beta_with_move(True, self.__game_board.get_player_turn(), self.__game_board.get_state(), self.__depth, self.__bot_1.MIN, self.__bot_1.MAX)
+                    score, move = ai.AI(self.__game_board.get_player_turn()).minimax_alpha_beta_with_move(True, self.__game_board.get_player_turn(), self.__game_board.get_state(), 8, ai.AI.MIN, ai.AI.MAX)
                     print("Player: 1")
                     print("Move: " + str(move) + " with a score of " + str(score))
                     self.__game_board.apply_move(move)
@@ -105,7 +102,7 @@ class Neutreeko:
                     print("Board input:")
                     pprint(self.__game_board.get_state())
                     print(self.__depth)
-                    score, move = self.__bot_2.minimax_alpha_beta_with_move(True, self.__game_board.get_player_turn(), self.__game_board.get_state(), self.__depth, self.__bot_2.MIN, self.__bot_2.MAX)
+                    score, move = ai.AI(self.__game_board.get_player_turn()).minimax_alpha_beta_with_move(True, self.__game_board.get_player_turn(), self.__game_board.get_state(), 8, ai.AI.MIN, ai.AI.MAX)
                     print("Player: 2")
                     print("Move: " + str(move) + " with a score of " + str(score))
                     self.__game_board.apply_move(move)
