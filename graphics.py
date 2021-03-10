@@ -118,42 +118,13 @@ def draw():
     if neutreeko.get_state() == State.MENU:
         MenuView.display(neutreeko.get_menu())
 
-    elif neutreeko.get_state() == State.PLAYER_VS_PLAYER:
-
-        BoardView.display(neutreeko.get_board())
-
-        if neutreeko.get_board().get_move().is_happening():
-            PieceView.display(neutreeko.get_board().get_move().get_piece())
-
-        neutreeko.update()
-
-
-    elif neutreeko.get_state() == State.PLAYER_VS_BOT:
-        BoardView.display(neutreeko.get_board())
-
-        if neutreeko.get_board().get_move().is_happening():
-            PieceView.display(neutreeko.get_board().get_move().get_piece())
-
-        neutreeko.update()
-
-    elif neutreeko.get_state() == State.BOT_VS_PLAYER:
-        BoardView.display(neutreeko.get_board())
-
-        if neutreeko.get_board().get_move().is_happening():
-            PieceView.display(neutreeko.get_board().get_move().get_piece())
-
-        neutreeko.update()
-
-    elif neutreeko.get_state() == State.BOT_VS_BOT:
-        BoardView.display(neutreeko.get_board())
-
-        if neutreeko.get_board().get_move().is_happening():
-            PieceView.display(neutreeko.get_board().get_move().get_piece())
-
-        neutreeko.update()
-
     else:
-        print("Invalid state!")
+        BoardView.display(neutreeko.get_board())
+
+        if neutreeko.get_board().get_move().is_happening():
+            PieceView.display(neutreeko.get_board().get_move().get_piece())
+
+        neutreeko.update()
 
 
 def mouse_pressed():

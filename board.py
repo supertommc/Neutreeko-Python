@@ -248,6 +248,15 @@ class Board:
     def get_move(self):
         return self.__move
 
+    def get_player_turn(self):
+        return self.__player_turn
+
+    def get_opponent_turn(self):
+        return 2 if self.__player_turn == 1 else 1
+
+    def get_state(self):
+        return self.__state
+
     def set_state(self, new_state):
         self.__state = new_state
         self.__insert_pieces_from_state()
@@ -265,6 +274,25 @@ class Board:
         self.__move.finish()
         self.__change_turn()
         self.__update_state()
+
+    def apply_move(self, move):
+        initial_x, initial_y, final_x, final_y = move
+
+        for tile in self.__tiles:
+            if tile.get_coords() == (initial_x, initial_y):
+                self.__move.set_start_tile(tile)
+
+            elif tile.get_coords() == (final_x, final_y):
+                self.__move.set_dest_tile(tile)
+
+        self.__move.start()
+        # pprint(self.__state)
+
+    def __move_is_valid(self):
+        move = self.__move.get_coords()
+        valid_moves = MoveGenerator.generate_all_moves(self.__state, self.__player_turn)
+
+        return move in valid_moves
 
     def press(self, mx, my):
 
@@ -290,34 +318,5 @@ class Board:
             else:
                 print("Invalid Move!")
                 self.__move.reset()
-
-    def apply_move(self, move):
-        initial_x, initial_y, final_x, final_y = move
-
-        initial_tile = None
-        final_tile = None
-
-        for tile in self.__tiles:
-            if tile.get_coords() == (initial_x, initial_y):
-                initial_tile = tile
-
-            elif tile.get_coords() == (final_x, final_y):
-                final_tile = tile
-
-        piece = initial_tile.extract_piece()
-        final_tile.set_piece(piece)
-        self.__change_turn()
-        self.__update_state()
-        pprint(self.__state)
-
-    def __move_is_valid(self):
-        move = self.__move.get_coords()
-        valid_moves = MoveGenerator.generate_all_moves(self.__state, self.__player_turn)
-
-        print("Player turn: {}".format(self.__player_turn))
-        print("Move: {}".format(move))
-        print("All moves: {}".format(valid_moves))
-
-        return move in valid_moves
 
 
