@@ -1,179 +1,134 @@
 from p5 import *
-
-game =  [
-            [0, 2, 0, 2, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 2, 0, 0],
-            [0, 1, 0, 1, 0]
-        ]
+from app import *
+from config import Config, State
 
 
-class Config:
-    SCREEN_WIDTH = 700
-    SCREEN_HEIGHT = 700
-    FONT_PATH = "fonts/Red_Rocket_Expanded_Italic.ttf"
+class ButtonView:
+    @staticmethod
+    def display(button):
+        text_size(button.get_text_size())
+
+        # draw button background
+        offset = 0
+        if button.is_hover(mouse_x, mouse_y):
+            offset = button.get_pressed_color_offset()
+        fill(button.get_background_color()[0] + offset, button.get_background_color()[1] + offset, button.get_background_color()[2] + offset)
+        rect(button.get_x(), button.get_y(), button.get_width(), button.get_height())
+
+        # draw button text
+        fill(button.get_color()[0], button.get_color()[1], button.get_color()[2])
+        text(button.get_text(), button.get_text_x(), button.get_text_y())
+
+
+class SlideButtonView:
+    @staticmethod
+    def display(button):
+        text_size(button.get_text_size())
+
+        # draw button background
+        offset = 0
+        if button.is_hover(mouse_x, mouse_y):
+            offset = button.get_pressed_color_offset()
+        fill(button.get_background_color()[0] + offset, button.get_background_color()[1] + offset,
+             button.get_background_color()[2] + offset)
+        rect(button.get_x(), button.get_y(), button.get_width(), button.get_height())
+
+        # draw bar
+        offset = 0
+        if button.is_hover(mouse_x, mouse_y):
+            offset = button.get_pressed_color_offset()
+        fill(button.get_bar_color()[0] + offset, button.get_bar_color()[1] + offset, button.get_bar_color()[2] + offset)
+        rect(button.get_bar_x(), button.get_bar_y(), button.get_bar_width(), button.get_bar_height())
+
+        # draw button text
+        fill(button.get_color()[0], button.get_color()[1], button.get_color()[2])
+        text(button.get_text(), button.get_text_x(), button.get_text_y())
+
+
+class MenuView:
+    @staticmethod
+    def display(menu):
+
+        # display title
+        text_size(menu.get_title_font_size())
+        fill(menu.get_title_color()[0], menu.get_title_color()[1], menu.get_title_color()[2])
+        text(menu.get_title_text(), menu.get_title_x(), menu.get_title_y())
+
+        # display buttons
+        ButtonView.display(menu.get_player_vs_player_button())
+        ButtonView.display(menu.get_player_vs_bot_button())
+        ButtonView.display(menu.get_bot_vs_player_button())
+        ButtonView.display(menu.get_bot_vs_bot_button())
+        SlideButtonView.display(menu.get_depth_slide_button())
+
+
+class PieceView:
 
     @staticmethod
-    def get_font_width_height(font_text, font_size):
-        image_font = create_font(Config.FONT_PATH, font_size)
-        font_size = image_font.getsize(font_text)
-        return font_size[0], font_size[1]
+    def display(piece):
+        if piece.get_player() == 1:
+            image(Config.white_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
+
+        elif piece.get_player() == 2:
+            image(Config.black_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
+
+    @staticmethod
+    def clear(piece):
+        background_color = config.Config.BACKGROUND_COLOR
+        fill(background_color[0], background_color[1], background_color[2])
+        no_stroke()
+        circle(piece.get_position(), piece.get_radius())
 
 
-class Button:
-    def __init__(self, position, width, height, color, background_color,  pressed_color_offset, text, text_size):
-        self.x, self.y = position
-        self.color = color
-        self.background_color = background_color
-        self.pressed_color_offset = pressed_color_offset
-        self.width = width
-        self.height = height
-        self.text = text
-        self.text_size = text_size
-        self.text_width, self.text_height = Config.get_font_width_height(text, text_size)
+class TileView:
 
-    def display(self):
-        text_size(self.text_size)
-        offset = 0
-        if self.is_hover():
-            offset = self.pressed_color_offset
-        fill(self.background_color[0]+offset, self.background_color[1]+offset, self.background_color[2]+offset)
-        rect(self.x, self.y, self.width, self.height)
-        fill(self.color[0], self.color[1], self.color[2])
-
-        text(self.text, self.x + self.width / 2 - text_width(self.text) / 2, self.y + self.height/2 - self.text_height / 2)
-
-    def is_hover(self):
-        return mouse_x > self.x and mouse_x < self.x + self.width and mouse_y > self.y and mouse_y < self.y + self.height
+    @staticmethod
+    def display(tile):
+        fill(tile.get_color()[0], tile.get_color()[1], tile.get_color()[2])
+        square(tile.get_position(), tile.get_edge())
 
 
-class Menu:
-    def __init__(self):
-        self.__title_text = "NEUTREEKO"
-        self.__title_font_size = 50
-        self.__title_y = 100
-        self.__title_color = (0, 0, 0)
+class BoardView:
 
-        self.__buttons_width = 370
-        self.__buttons_height = 50
-        self.__buttons_color = (0, 0, 0)
-        self.__buttons_background_color = (90, 90, 90)
-        self.__buttons_pressed_color_offset = 20
-        self.__buttons_font_size = 20
+    @staticmethod
+    def display(game_board):
 
-        self.__buttons_block_y = 200
-        self.__buttons_offset = 20
+        # display board
+        image(Config.board_image, (100, 100))
 
-        self.__player_vs_player_button = None
-        self.__player_vs_player_button_text = "PLAYER VS PLAYER"
-
-        self.__player_vs_bot_button = None
-        self.__player_vs_bot_button_text = "PLAYER VS BOT"
-
-        self.__bot_vs_player_button = None
-        self.__bot_vs_player_button_text = "BOT VS PLAYER"
-
-        self.__bot_vs_bot_button = None
-        self.__bot_vs_bot_button_text = "BOT VS BOT"
-
-        self.__create_buttons()
-
-    def __display_title(self):
-        text_size(self.__title_font_size)
-        fill(self.__title_color[0], self.__title_color[1], self.__title_color[2])
-        text(self.__title_text, Config.SCREEN_WIDTH / 2 - text_width(self.__title_text) / 2, self.__title_y)
-
-    def __create_buttons(self):
-        button_y = self.__buttons_block_y
-        button_x = Config.SCREEN_WIDTH / 2 - self.__buttons_width / 2
-
-        self.__player_vs_player_button = Button((button_x, button_y), self.__buttons_width,
-                                                self.__buttons_height, self.__buttons_color,
-                                                self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                                self.__player_vs_player_button_text, self.__buttons_font_size)
-        button_y += self.__buttons_height + self.__buttons_offset
-
-        self.__player_vs_bot_button = Button((button_x, button_y), self.__buttons_width,
-                                             self.__buttons_height, self.__buttons_color,
-                                             self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                             self.__player_vs_bot_button_text, self.__buttons_font_size)
-        button_y += self.__buttons_height + self.__buttons_offset
-
-        self.__bot_vs_player_button = Button((button_x, button_y), self.__buttons_width,
-                                             self.__buttons_height, self.__buttons_color,
-                                             self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                             self.__bot_vs_player_button_text, self.__buttons_font_size)
-        button_y += self.__buttons_height + self.__buttons_offset
-
-        self.__bot_vs_bot_button = Button((button_x, button_y), self.__buttons_width,
-                                          self.__buttons_height, self.__buttons_color,
-                                          self.__buttons_background_color, self.__buttons_pressed_color_offset,
-                                          self.__bot_vs_bot_button_text, self.__buttons_font_size)
-
-    def __display_buttons(self):
-        self.__player_vs_player_button.display()
-        self.__player_vs_bot_button.display()
-        self.__bot_vs_player_button.display()
-        self.__bot_vs_bot_button.display()
-
-    def display(self):
-        self.__display_title()
-        self.__display_buttons()
-
-
-def draw_menu():
-    button = Button((100, 100), 100, 50, (100, 100, 100), "Play")
-    button.display()
-
-def draw_board(game):
-    # Vertical Lines
-    line((100, 100), (100, 600))
-    line((200, 100), (200, 600))
-    line((300, 100), (300, 600))
-    line((400, 100), (400, 600))
-    line((500, 100), (500, 600))
-    line((600, 100), (600, 600))
-
-    # Horizontal Lines
-    line((100, 100), (600, 100))
-    line((100, 200), (600, 200))
-    line((100, 300), (600, 300))
-    line((100, 400), (600, 400))
-    line((100, 500), (600, 500))
-    line((100, 600), (600, 600))
-
-    draw_state(game)
-
-
-def draw_piece(piece, position):
-    if (piece == 1):
-        fill(0, 0, 0)
-        circle(position, 50)
-    elif piece == 2:
-        fill(255, 255, 255)
-        circle(position, 50)
-
-
-def draw_state(game):
-    for i in range(len(game)):
-        for j in range(len(game[0])):
-            if game[i][j] != 0:
-                draw_piece(game[i][j], (550-j*100, 150+i*100))
+        # display pieces
+        for tile in game_board.get_tiles():
+            if tile.has_piece():
+                PieceView.display(tile.get_piece())
 
 
 def setup():
+    title("NEUTREEKO")
     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
     game_font = create_font(Config.FONT_PATH, size=50)
     text_font(game_font)
+    Config.board_image = load_image(Config.BOARD_IMAGE_PATH)
+    Config.white_piece_image = load_image(Config.WHITE_PIECE_IMAGE_PATH)
+    Config.black_piece_image = load_image(Config.BLACK_PIECE_IMAGE_PATH)
 
 
 def draw():
-    # draw_board(game)
-    # draw_menu()
-    Menu().display()
+    clear()
+
+    if neutreeko.get_state() == State.MENU:
+        MenuView.display(neutreeko.get_menu())
+
+    else:
+        BoardView.display(neutreeko.get_board())
+
+        if neutreeko.get_board().get_move().is_happening():
+            PieceView.display(neutreeko.get_board().get_move().get_piece())
+
+        neutreeko.update()
+
+
+def mouse_pressed():
+    neutreeko.process_press(mouse_x, mouse_y)
+
 
 run()
-
-
-

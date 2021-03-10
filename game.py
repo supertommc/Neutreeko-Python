@@ -1,4 +1,3 @@
-
 from pprint import pprint
 from gameUtils import GameUtils
 from ai import AI
@@ -82,4 +81,3 @@ class Game:
             self.store_move(player_move)
 
             GameUtils.make_move(self.state, player_move)
-        
