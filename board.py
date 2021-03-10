@@ -319,6 +319,7 @@ class Board:
 
     def apply_bot_move(self, depth):
         score, move = AI(self.__player_turn).minimax_alpha_beta_with_move(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+        print("Move: " + str(move) + " with a score of " + str(score))
         self.__apply_move(move)
 
     def press(self, mx, my):

@@ -8,8 +8,8 @@ class Neutreeko:
     def __init__(self):
         self.__state = config.State.MENU
         self.__player = 1
-        self.__depth_bot_1 = 6
-        self.__depth_bot_2 = 4
+        self.__depth_bot_1 = 7
+        self.__depth_bot_2 = 5
         self.__game_state = [
             [0, 2, 0, 2, 0],
             [0, 0, 1, 0, 0],
@@ -26,9 +26,6 @@ class Neutreeko:
     def get_player(self):
         return self.__player
 
-    def get_depth(self):
-        return self.__depth
-
     def get_game_state(self):
         return self.__game_state
 
@@ -43,9 +40,6 @@ class Neutreeko:
 
     def change_player(self):
         self.__player = 2 if self.__player == 1 else 1
-
-    def set_depth(self, new_depth):
-        self.__depth = new_depth
 
     def set_game_state(self, new_game_state):
         self.__game_state = new_game_state
