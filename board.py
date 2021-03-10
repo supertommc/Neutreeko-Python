@@ -106,7 +106,7 @@ class Tile:
 class Move:
 
     def __init__(self):
-        self.__move_speed = 40
+        self.__move_speed = 5.5
 
         self.__start_tile = None
         self.__dest_tile = None
@@ -165,8 +165,14 @@ class Move:
     def piece_reach_dest_position(self):
         piece_x, piece_y = self.__piece.get_position()
         dest_x, dest_y = self.__dest_tile.get_piece_position()
+        direction_x, direction_y = self.__direction
+        offset_x = direction_x * self.__move_speed
+        offset_y = direction_y * self.__move_speed
+        # TODO: do finish condition
+        reach_x = ((direction_x < 0) and (piece_x < dest_x - offset_x)) or ((direction_x > 0) and (piece_x > dest_x - offset_x))
+        reach_y = ((direction_y < 0) and (piece_y < dest_y - offset_y)) or ((direction_y > 0) and (piece_y > dest_y - offset_y))
 
-        return (piece_x == dest_x) and (piece_y == dest_y)
+        return reach_x or reach_y
 
     def is_happening(self):
         return self.__piece is not None
