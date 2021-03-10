@@ -14,15 +14,23 @@ class Game:
                         [0, 0, 0, 1, 0]
                     ]
 
-        self.played_states = []
+        self.played_states = {}
         self.played_moves = []
     
     def store_current_position(self):
-        self.played_states.append(GameUtils.full_game_to_tuple(self.state))
+        item = GameUtils.full_game_to_tuple(self.state)
+        if item in self.played_states.keys():
+            self.played_states[item] += 1
+        else self.played_states[item] = 1
 
     def store_move(self, move):
         self.played_moves.append(move)
 
+    def check_draw(self):
+        for val in self.played_states.items():
+            if val == 3:
+                return True
+        return False
 
     def askForInput(self, piece):
         
