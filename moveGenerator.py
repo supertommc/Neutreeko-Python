@@ -19,14 +19,14 @@ class MoveGenerator:
         if new_y != 5:
             while GameUtils.valid_coord(new_y) and game[new_y][x] == 0:
                 new_y += 1
-            if GameUtils.different_move(x, y, x, new_y-1):
+            if new_y-1 != y:
                 moves.append((x, y, x, new_y-1))
 
         new_y = y - 1
         if new_y != -1:
             while GameUtils.valid_coord(new_y) and game[new_y][x] == 0:
                 new_y -= 1
-            if GameUtils.different_move(x, y, x, new_y+1):
+            if new_y+1 != y:
                 moves.append((x, y, x, new_y+1))
 
         # Left and Right
@@ -34,14 +34,14 @@ class MoveGenerator:
         if new_x != 5:
             while GameUtils.valid_coord(new_x) and game[y][new_x] == 0:
                 new_x += 1
-            if GameUtils.different_move(x, y, new_x-1, y):
+            if new_x-1 != x:
                 moves.append((x, y, new_x-1, y))
 
         new_x = x - 1
         if new_x != -1:
             while GameUtils.valid_coord(new_x) and game[y][new_x] == 0:
                 new_x -= 1
-            if GameUtils.different_move(x, y, new_x+1, y):
+            if new_x+1 != x:
                 moves.append((x, y, new_x+1, y))
 
         # Diagonal Up Right
