@@ -1,4 +1,6 @@
 from moveGenerator import MoveGenerator
+from gameUtils import GameUtils
+from ai import AI
 from pprint import pprint
 
 
@@ -106,7 +108,7 @@ class Tile:
 class Move:
 
     def __init__(self):
-        self.__move_speed = 5.5
+        self.__move_speed = 30
 
         self.__start_tile = None
         self.__dest_tile = None
@@ -194,9 +196,8 @@ class Move:
 
 class Board:
 
-    def __init__(self, state, neutreeko):
+    def __init__(self, state):
         self.__state = state
-        self.__neutreeko = neutreeko
 
         self.__move = Move()
 
@@ -215,6 +216,9 @@ class Board:
 
         self.__create_tiles()
         self.__insert_pieces_from_state()
+
+        self.__played_states = {}
+        self.__played_moves = []
 
     def __create_tiles(self):
         for row in range(5):
@@ -271,11 +275,12 @@ class Board:
         self.__player_turn = 2 if self.__player_turn == 1 else 1
 
     def finish_piece_move(self):
+        self.__store_current_position()
         self.__move.finish()
         self.__change_turn()
         self.__update_state()
 
-    def apply_move(self, move):
+    def __apply_move(self, move):
         initial_x, initial_y, final_x, final_y = move
 
         for tile in self.__tiles:
@@ -286,13 +291,35 @@ class Board:
                 self.__move.set_dest_tile(tile)
 
         self.__move.start()
-        # pprint(self.__state)
 
     def __move_is_valid(self):
         move = self.__move.get_coords()
         valid_moves = MoveGenerator.generate_all_moves(self.__state, self.__player_turn)
 
         return move in valid_moves
+
+    def is_game_over(self):
+        return GameUtils.check_game_over_full(self.__state)
+
+    def __store_current_position(self):
+        item = GameUtils.full_game_to_tuple(self.__state)
+        if item in self.__played_states.keys():
+            self.__played_states[item] += 1
+        else:
+            self.__played_states[item] = 1
+
+    def __store_move(self, move):
+        self.__played_moves.append(move)
+
+    def is_draw(self):
+        for val in self.__played_states.values():
+            if val == 3:
+                return True
+        return False
+
+    def apply_bot_move(self, depth):
+        score, move = AI(self.__player_turn).minimax_alpha_beta_with_move(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+        self.__apply_move(move)
 
     def press(self, mx, my):
 
@@ -313,7 +340,6 @@ class Board:
             if self.__move_is_valid():
                 self.__move.start()
                 # self.finish_piece_move()
-                pprint(self.__state)
 
             else:
                 print("Invalid Move!")

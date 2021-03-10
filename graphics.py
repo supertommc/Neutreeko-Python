@@ -115,6 +115,8 @@ def setup():
 def draw():
     clear()
 
+    neutreeko.update()
+
     if neutreeko.get_state() == State.MENU:
         MenuView.display(neutreeko.get_menu())
 
@@ -123,8 +125,6 @@ def draw():
 
         if neutreeko.get_board().get_move().is_happening():
             PieceView.display(neutreeko.get_board().get_move().get_piece())
-
-        neutreeko.update()
 
 
 def mouse_pressed():
