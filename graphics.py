@@ -138,7 +138,6 @@ def mouse_released():
 
 def mouse_dragged():
     neutreeko.process_drag(mouse_x)
-    print(mouse_x)
 
 
 run()

@@ -88,11 +88,12 @@ class SlideButton(Button):
         return self.__bar_height
 
     def get_bar_x(self):
-        bar_ratio = self.__current_value_index / len(self.__values)
-        return self._x + self._width * bar_ratio
+        # bar_ratio = self.__current_value_index / len(self.__values)
+        # return self._x + self._width * bar_ratio
+        return self.__bar_x
 
     def get_bar_y(self):
-        return self._y
+        return self.__bar_y
 
     def get_current_value(self):
         return self.__values[self.__current_value_index]
@@ -110,24 +111,25 @@ class SlideButton(Button):
     def update(self, mx):
         if mx < self._x + self.__bar_width / 2:
             # update bar position
-            self.__bar_x = 0
+            self.__bar_x = self._x
 
             # update index
             self.__current_value_index = 0
 
-        elif mx > self._x + self._width - self.__bar_width / 2:
+        elif mx > self._x + self._width - self.__bar_width:
             # update bar position
-            self.__bar_x = self._x + self._width
+            self.__bar_x = self._x + self._width - self.__bar_width
 
             # update index
-            self.__current_value_index = -1
+            self.__current_value_index = self.__number_values - 1
+
         else:
             # update bar position
             self.__bar_x = mx
 
             # update index
-            bar_ratio = (mx - self._x) / self.__bar_width
-            self.__current_value_index = int(bar_ratio * self.__number_values)
+            bar_ratio = (mx - self._x) / self._width
+            self.__current_value_index = round(bar_ratio * self.__number_values)
 
         self.update_text()
 
@@ -230,6 +232,7 @@ class Menu:
                                                 self.__buttons_pressed_color_offset, self.__depth_slide_button_prefix,
                                                 self.__buttons_font_size, self.__depth_slide_button_values,
                                                 self.__depth_slide_button_response)
+        self.__buttons_list.append(self.__depth_slide_button)
 
     def get_title_text(self):
         return self.__title_text
