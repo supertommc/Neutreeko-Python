@@ -209,8 +209,8 @@ class Board:
         self.__tiles_color = (255, 255, 255)
 
         self.__pieces_radius = 50
-        self.__player_1_pieces_color = (255, 255, 255)
-        self.__player_2_pieces_color = (0, 0, 0)
+        self.__player_1_pieces_color = (255, 0, 0)
+        self.__player_2_pieces_color = (255, 255, 255)
 
         self.__player_turn = 1
 
@@ -219,6 +219,11 @@ class Board:
 
         self.__played_states = {}
         self.__played_moves = []
+
+        self.__bot_1 = AI(1)
+        self.__bot_2 = AI(2)
+
+        self.__bot_move_processing = False
 
     def __create_tiles(self):
         for row in range(5):
@@ -261,6 +266,12 @@ class Board:
     def get_state(self):
         return self.__state
 
+    def get_played_moves(self):
+        return self.__played_moves
+
+    def is_bot_move_processing(self):
+        return self.__bot_move_processing
+
     def set_state(self, new_state):
         self.__state = new_state
         self.__insert_pieces_from_state()
@@ -276,6 +287,7 @@ class Board:
 
     def finish_piece_move(self):
         self.__store_current_position()
+        self.__store_move(self.__move.get_coords())
         self.__move.finish()
         self.__change_turn()
         self.__update_state()
@@ -318,9 +330,19 @@ class Board:
         return False
 
     def apply_bot_move(self, depth):
-        score, move = AI(self.__player_turn).minimax_alpha_beta_with_move(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
-        print("Move: " + str(move) + " with a score of " + str(score))
+        self.__bot_move_processing = True
+        if self.__player_turn == 1:
+            assert(self.__player_turn == 1)
+            assert(self.__player_turn == self.__bot_1.piece)
+            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+        else:
+            assert (self.__player_turn == 2)
+            assert (self.__player_turn == self.__bot_2.piece)
+            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+
+        print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
         self.__apply_move(move)
+        self.__bot_move_processing = False
 
     def press(self, mx, my):
 

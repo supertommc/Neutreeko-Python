@@ -69,11 +69,14 @@ class SlideButton(Button):
         self.__bar_color = new_bar_color
         self.__prefix = prefix
         self.__values = values
+        self.__number_values = len(values)
         self.__current_value_index = 0
         self._text = self.__prefix + str(self.__values[self.__current_value_index])
         self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), new_text_size)
         self.__bar_width = 0.1 * width
         self.__bar_height = height
+        self.__bar_x, self.__bar_y = position
+        self.__dragging = False
 
     def get_bar_color(self):
         return self.__bar_color
@@ -90,6 +93,55 @@ class SlideButton(Button):
 
     def get_bar_y(self):
         return self._y
+
+    def get_current_value(self):
+        return self.__values[self.__current_value_index]
+
+    def set_dragging(self, new_dragging):
+        self.__dragging = new_dragging
+
+    def update_text(self):
+        self._text = self.__prefix + str(self.__values[self.__current_value_index])
+        self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), self._text_size)
+
+    def update_bar_position(self, mx):
+        self.__bar_x = mx
+
+    def update(self, mx):
+        if mx < self._x + self.__bar_width / 2:
+            # update bar position
+            self.__bar_x = 0
+
+            # update index
+            self.__current_value_index = 0
+
+        elif mx > self._x + self._width - self.__bar_width / 2:
+            # update bar position
+            self.__bar_x = self._x + self._width
+
+            # update index
+            self.__current_value_index = -1
+        else:
+            # update bar position
+            self.__bar_x = mx
+
+            # update index
+            bar_ratio = (mx - self._x) / self.__bar_width
+            self.__current_value_index = int(bar_ratio * self.__number_values)
+
+        self.update_text()
+
+    def press(self, mx, my):
+        if self.is_hover(mx, my):
+            self.__dragging = True
+
+    def release(self):
+        self.__dragging = False
+
+    def drag(self, mx):
+        if self.__dragging:
+            self.update(mx)
+            self._response.on_drag(self)
 
 
 class Menu:
@@ -130,6 +182,7 @@ class Menu:
         self.__depth_slide_button = None
         self.__depth_slide_button_prefix = "DEPTH: "
         self.__depth_slide_button_values = range(10)
+        self.__depth_slide_button_response = responses.SlideResponse(1)
 
         self.__buttons_list = []
 
@@ -176,7 +229,7 @@ class Menu:
                                                 self.__buttons_background_color, self.__bar_color,
                                                 self.__buttons_pressed_color_offset, self.__depth_slide_button_prefix,
                                                 self.__buttons_font_size, self.__depth_slide_button_values,
-                                                None)  # TODO: create response for slide button
+                                                self.__depth_slide_button_response)
 
     def get_title_text(self):
         return self.__title_text
@@ -250,3 +303,9 @@ class Menu:
     def press(self, mx, my):
         for button in self.__buttons_list:
             button.press(mx, my)
+
+    def release(self):
+        self.__depth_slide_button.release()
+
+    def drag(self, mx):
+        self.__depth_slide_button.drag(mx)

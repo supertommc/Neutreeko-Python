@@ -2,6 +2,7 @@
 from gameUtils import GameUtils
 from moveGenerator import MoveGenerator
 from timeit import default_timer as timer
+import random
 
 class AI:
 
@@ -64,7 +65,7 @@ class AI:
         elif GameUtils.check_game_over(game, self.other_piece):
             return -10000 - depth
         else:
-            return 0
+            return 0 + random.randint(-5, 5)
             """
             val = 0
             for i in range(len(game)):

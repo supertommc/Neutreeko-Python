@@ -67,10 +67,10 @@ class PieceView:
     @staticmethod
     def display(piece):
         if piece.get_player() == 1:
-            image(Config.white_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
+            image(Config.black_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
 
         elif piece.get_player() == 2:
-            image(Config.black_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
+            image(Config.white_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
 
     @staticmethod
     def clear(piece):
@@ -113,6 +113,7 @@ def setup():
 
 
 def draw():
+    BoardView.display(neutreeko.get_board())
     clear()
 
     neutreeko.update()
@@ -129,6 +130,15 @@ def draw():
 
 def mouse_pressed():
     neutreeko.process_press(mouse_x, mouse_y)
+
+
+def mouse_released():
+    neutreeko.process_release()
+
+
+def mouse_dragged():
+    neutreeko.process_drag(mouse_x)
+    print(mouse_x)
 
 
 run()
