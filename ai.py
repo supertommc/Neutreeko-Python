@@ -4,10 +4,16 @@ from moveGenerator import MoveGenerator
 from timeit import default_timer as timer
 import random
 
+
 class AI:
 
     MAX = 99999999
     MIN = -99999999
+
+    WIN_SCORE = 10000
+    LOSE_SCORE = -10000
+    MAX_SCORE_NOT_WIN = 5
+    MIN_SCORE_NOT_LOSE = -5
 
     def __init__(self, piece):
         self.rel_scores = [
@@ -61,11 +67,11 @@ class AI:
     def evaluate_position(self, piece, game, depth):
 
         if GameUtils.check_game_over(game, self.piece):
-            return 10000 + depth
+            return AI.WIN_SCORE + depth
         elif GameUtils.check_game_over(game, self.other_piece):
-            return -10000 - depth
+            return AI.LOSE_SCORE - depth
         else:
-            return 0 + random.randint(-5, 5)
+            return 0 + random.randint(AI.MIN_SCORE_NOT_LOSE, AI.MAX_SCORE_NOT_WIN)
             """
             val = 0
             for i in range(len(game)):

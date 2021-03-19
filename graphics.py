@@ -59,7 +59,8 @@ class MenuView:
         ButtonView.display(menu.get_player_vs_bot_button())
         ButtonView.display(menu.get_bot_vs_player_button())
         ButtonView.display(menu.get_bot_vs_bot_button())
-        SlideButtonView.display(menu.get_depth_slide_button())
+        SlideButtonView.display(menu.get_depth_slide_button_bot_1())
+        SlideButtonView.display(menu.get_depth_slide_button_bot_2())
 
 
 class PieceView:
@@ -88,6 +89,45 @@ class TileView:
         square(tile.get_position(), tile.get_edge())
 
 
+class ScoreBarView:
+
+    @staticmethod
+    def display(score_bar):
+        black_pieces_color = config.Config.BLACK_PIECES_COLOR
+        white_pieces_color = config.Config.WHITE_PIECES_COLOR
+
+        fill(white_pieces_color[0], white_pieces_color[1], white_pieces_color[2])
+        rect(score_bar.get_x(), score_bar.get_y(), score_bar.get_width(), score_bar.get_height())
+
+        fill(black_pieces_color[0], black_pieces_color[1], black_pieces_color[2])
+        rect(score_bar.get_x(), score_bar.get_bar_y(), score_bar.get_width(), score_bar.get_current_bar_height())
+
+
+class PlayerTurnMenuView:
+
+    @staticmethod
+    def display(player_turn):
+
+        # display title
+        text_size(player_turn.get_title_text())
+        fill(player_turn.get_title_color()[0], player_turn.get_title_color()[1], player_turn.get_title_color()[2])
+        text(player_turn.get_title_text(), player_turn.get_title_x(), player_turn.get_title_y())
+
+        # display piece
+        if player_turn.get_player() == 1:
+            image(Config.black_piece_image, Config.get_circle_top_left_position(player_turn.get_piece_x(), player_turn.get_piece_x(), 50))
+
+        elif player_turn.get_player() == 2:
+            image(Config.white_piece_image, Config.get_circle_top_left_position(player_turn.get_piece_x(), player_turn.get_piece_x(), 50))
+
+
+class BoardMenuView:
+
+    @staticmethod
+    def display(board_menu):
+        pass
+
+
 class BoardView:
 
     @staticmethod
@@ -101,6 +141,8 @@ class BoardView:
             if tile.has_piece():
                 PieceView.display(tile.get_piece())
 
+        ScoreBarView.display(game_board.get_score_bar())
+
 
 def setup():
     title("NEUTREEKO")
@@ -113,7 +155,7 @@ def setup():
 
 
 def draw():
-    BoardView.display(neutreeko.get_board())
+    # BoardView.display(neutreeko.get_board())
     clear()
 
     neutreeko.update()

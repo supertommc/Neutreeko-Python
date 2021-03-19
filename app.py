@@ -9,8 +9,8 @@ class Neutreeko:
     def __init__(self):
         self.__state = config.State.MENU
         self.__player = 1
-        self.__depth_bot_1 = 8
-        self.__depth_bot_2 = 8
+        self.__depth_bot_1 = 4
+        self.__depth_bot_2 = 4
         self.__game_state = [
             [0, 2, 0, 2, 0],
             [0, 0, 1, 0, 0],
@@ -74,7 +74,7 @@ class Neutreeko:
             self.__game_menu.drag(mx)
 
     def update(self):
-        if self.__game_board.is_game_over() or self.__game_board.is_draw() or self.__game_board.is_bot_move_processing():
+        if self.__game_board.is_game_over() or self.__game_board.is_bot_move_processing():
             return
 
         move = self.__game_board.get_move()
@@ -98,13 +98,13 @@ class Neutreeko:
                     move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2,))
                     move_thread.start()
 
-        if self.__game_board.is_game_over():
-            print("GAME OVER! Player: {} lost!".format(self.__game_board.get_player_turn()))
-            print(self.__game_board.get_played_moves())
-
-        elif self.__game_board.is_draw():
-            print("DRAW!")
-            print(self.__game_board.get_played_moves())
+        # if self.__game_board.is_game_over():
+        #     print("GAME OVER! Player: {} lost!".format(self.__game_board.get_player_turn()))
+        #     print(self.__game_board.get_played_moves())
+        #
+        # elif self.__game_board.is_draw():
+        #     print("DRAW!")
+        #     print(self.__game_board.get_played_moves())
 
 
 neutreeko = Neutreeko()
