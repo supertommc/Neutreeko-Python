@@ -31,7 +31,7 @@ class GameUtils:
 
     @staticmethod
     def get_other_piece(piece):
-        return 1 if piece == 2 else 2
+        return 3-piece
 
     @staticmethod
     def get_ones_positions(game_int):
