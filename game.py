@@ -3,6 +3,7 @@ from gameUtils import GameUtils
 from ai import AI
 from moveGenerator import MoveGenerator
 
+
 class Game:
 
     def __init__(self):

@@ -1,5 +1,8 @@
 from moveGenerator import MoveGenerator
-from pprint import pprint
+from gameUtils import GameUtils
+from ai import AI
+from boardmenu import BoardMenu
+import config
 
 
 class Piece:
@@ -39,7 +42,6 @@ class Tile:
         self.__x, self.__y = position
         self.__edge = edge
         self.__color = color
-        # TODO: self.__pressed_color = pressed_color
         self.__is_pressed = False
         self.__piece = None
         self.__piece_radius = 50
@@ -106,7 +108,7 @@ class Tile:
 class Move:
 
     def __init__(self):
-        self.__move_speed = 5.5
+        self.__move_speed = 30
 
         self.__start_tile = None
         self.__dest_tile = None
@@ -168,7 +170,7 @@ class Move:
         direction_x, direction_y = self.__direction
         offset_x = direction_x * self.__move_speed
         offset_y = direction_y * self.__move_speed
-        # TODO: do finish condition
+
         reach_x = ((direction_x < 0) and (piece_x < dest_x - offset_x)) or ((direction_x > 0) and (piece_x > dest_x - offset_x))
         reach_y = ((direction_y < 0) and (piece_y < dest_y - offset_y)) or ((direction_y > 0) and (piece_y > dest_y - offset_y))
 
@@ -192,13 +194,71 @@ class Move:
         self.__direction = None
 
 
+class ScoreBar:
+
+    def __init__(self, position, width, height):
+        self.__x, self.__y = position
+        self.__width = width
+        self.__height = height
+        self.__current_bar_height = 0.5 * self.__height
+        self.__range_values = AI.MAX_SCORE_NOT_WIN - AI.MIN_SCORE_NOT_LOSE
+        self.__winning_offset = 5
+
+    def get_x(self):
+        return self.__x
+
+    def get_y(self):
+        return self.__y
+
+    def get_width(self):
+        return self.__width
+
+    def get_height(self):
+        return self.__height
+
+    def get_current_bar_height(self):
+        return self.__current_bar_height
+
+    def get_bar_y(self):
+        return self.__y + self.__height - self.__current_bar_height
+
+    def update(self, player, score):
+        ratio = -1
+        if player == 1:
+            if score >= AI.WIN_SCORE:
+                ratio = 1.0
+            elif score <= AI.LOSE_SCORE:
+                ratio = 0.0
+            else:
+                score_normalize = AI.MAX_SCORE_NOT_WIN + score
+                ratio = (score_normalize / (self.__range_values + self.__winning_offset))
+
+        elif player == 2:
+            if score >= AI.WIN_SCORE:
+                ratio = 0.0
+            elif score <= AI.LOSE_SCORE:
+                ratio = 1.0
+            else:
+                score_normalize = AI.MAX_SCORE_NOT_WIN - score
+                ratio = (score_normalize / (self.__range_values + self.__winning_offset))
+
+        self.__current_bar_height = self.__height * ratio
+
+
 class Board:
 
-    def __init__(self, state, neutreeko):
+    def __init__(self, state):
         self.__state = state
-        self.__neutreeko = neutreeko
 
         self.__move = Move()
+
+        self.__score_bar_position = (650, 100)
+        self.__score_bar_width = 50
+        self.__score_bar_height = 500
+        self.__score_bar = ScoreBar(self.__score_bar_position, self.__score_bar_width, self.__score_bar_height)
+
+        self.__board_menu_position = (750, 100)
+        self.__board_menu = BoardMenu(self.__board_menu_position)
 
         self.__x = 100
         self.__y = 100
@@ -208,13 +268,21 @@ class Board:
         self.__tiles_color = (255, 255, 255)
 
         self.__pieces_radius = 50
-        self.__player_1_pieces_color = (255, 255, 255)
-        self.__player_2_pieces_color = (0, 0, 0)
+        self.__player_1_pieces_color = (255, 0, 0)
+        self.__player_2_pieces_color = (255, 255, 255)
 
         self.__player_turn = 1
 
         self.__create_tiles()
         self.__insert_pieces_from_state()
+
+        self.__played_states = {}
+        self.__played_moves = []
+
+        self.__bot_1 = AI(1)
+        self.__bot_2 = AI(2)
+
+        self.__bot_move_processing = False
 
     def __create_tiles(self):
         for row in range(5):
@@ -248,6 +316,9 @@ class Board:
     def get_move(self):
         return self.__move
 
+    def get_score_bar(self):
+        return self.__score_bar
+
     def get_player_turn(self):
         return self.__player_turn
 
@@ -256,6 +327,12 @@ class Board:
 
     def get_state(self):
         return self.__state
+
+    def get_played_moves(self):
+        return self.__played_moves
+
+    def is_bot_move_processing(self):
+        return self.__bot_move_processing
 
     def set_state(self, new_state):
         self.__state = new_state
@@ -269,13 +346,16 @@ class Board:
 
     def __change_turn(self):
         self.__player_turn = 2 if self.__player_turn == 1 else 1
+        self.__board_menu.change_player_turn(self.__player_turn)
 
     def finish_piece_move(self):
+        self.__store_current_position()
+        self.__store_move(self.__move.get_coords())
         self.__move.finish()
         self.__change_turn()
         self.__update_state()
 
-    def apply_move(self, move):
+    def __apply_move(self, move):
         initial_x, initial_y, final_x, final_y = move
 
         for tile in self.__tiles:
@@ -286,13 +366,64 @@ class Board:
                 self.__move.set_dest_tile(tile)
 
         self.__move.start()
-        # pprint(self.__state)
 
     def __move_is_valid(self):
         move = self.__move.get_coords()
         valid_moves = MoveGenerator.generate_all_moves(self.__state, self.__player_turn)
 
         return move in valid_moves
+
+    def __is_draw(self):
+        for val in self.__played_states.values():
+            if val == 3:
+                return True
+        return False
+
+    def is_game_over(self):
+
+        if self.__is_draw():
+            self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_DRAW_MENU)
+            return True
+
+        result = GameUtils.check_game_over_full(self.__state)
+
+        if result == 1:
+            self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_WINNER_MENU)
+            self.__board_menu.set_winner(1)
+            return True
+
+        elif result == 2:
+            self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_WINNER_MENU)
+            self.__board_menu.set_winner(2)
+            return True
+
+        return False
+
+    def __store_current_position(self):
+        item = GameUtils.full_game_to_tuple(self.__state)
+        if item in self.__played_states.keys():
+            self.__played_states[item] += 1
+        else:
+            self.__played_states[item] = 1
+
+    def __store_move(self, move):
+        self.__played_moves.append(move)
+
+    def apply_bot_move(self, depth):
+        self.__bot_move_processing = True
+        if self.__player_turn == 1:
+            assert(self.__player_turn == 1)
+            assert(self.__player_turn == self.__bot_1.piece)
+            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+        else:
+            assert (self.__player_turn == 2)
+            assert (self.__player_turn == self.__bot_2.piece)
+            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+
+        print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
+        self.__score_bar.update(self.__player_turn, score)
+        self.__apply_move(move)
+        self.__bot_move_processing = False
 
     def press(self, mx, my):
 
@@ -313,7 +444,6 @@ class Board:
             if self.__move_is_valid():
                 self.__move.start()
                 # self.finish_piece_move()
-                pprint(self.__state)
 
             else:
                 print("Invalid Move!")

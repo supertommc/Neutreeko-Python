@@ -2,9 +2,11 @@ from p5 import create_font
 
 
 class Config:
-    SCREEN_WIDTH = 700
+    SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 700
     BACKGROUND_COLOR = (204, 204, 204)
+    BLACK_PIECES_COLOR = (0, 0, 0)
+    WHITE_PIECES_COLOR = (255, 255, 255)
     FONT_PATH = "fonts/TarrgetItalic-xzP8.otf"
     BOARD_IMAGE_PATH = "images/board.PNG"
     BLACK_PIECE_IMAGE_PATH = "images/blackPiece.png"
@@ -25,7 +27,6 @@ class Config:
         return center_x - radius // 2, center_y - radius // 2
 
 
-
 class State:
     MENU = 0
     PLAYER_VS_PLAYER = 1
@@ -33,3 +34,9 @@ class State:
     BOT_VS_PLAYER = 3
     BOT_VS_BOT = 4
     GAME_OVER = 5
+
+
+class BoardMenuState:
+    PLAYER_TURN_MENU = 0
+    GAME_OVER_WINNER_MENU = 1
+    GAME_OVER_DRAW_MENU = 2

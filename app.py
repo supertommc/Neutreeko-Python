@@ -1,9 +1,7 @@
 import config
 import menu
 import board
-import ai
-import gameUtils
-from pprint import pprint
+import threading
 
 
 class Neutreeko:
@@ -11,7 +9,8 @@ class Neutreeko:
     def __init__(self):
         self.__state = config.State.MENU
         self.__player = 1
-        self.__depth = 6
+        self.__depth_bot_1 = 4
+        self.__depth_bot_2 = 4
         self.__game_state = [
             [0, 2, 0, 2, 0],
             [0, 0, 1, 0, 0],
@@ -20,19 +19,13 @@ class Neutreeko:
             [0, 1, 0, 1, 0]
         ]
         self.__game_menu = menu.Menu()
-        self.__game_board = board.Board(self.__game_state, self)
-
-        self.__bot_1 = ai.AI()
-        self.__bot_2 = ai.AI()
+        self.__game_board = board.Board(self.__game_state)
 
     def get_state(self):
         return self.__state
 
     def get_player(self):
         return self.__player
-
-    def get_depth(self):
-        return self.__depth
 
     def get_game_state(self):
         return self.__game_state
@@ -49,11 +42,14 @@ class Neutreeko:
     def change_player(self):
         self.__player = 2 if self.__player == 1 else 1
 
-    def set_depth(self, new_depth):
-        self.__depth = new_depth
-
     def set_game_state(self, new_game_state):
         self.__game_state = new_game_state
+
+    def set_depth_bot(self, bot, new_depth):
+        if bot == 1:
+            self.__depth_bot_1 = new_depth
+        elif bot == 2:
+            self.__depth_bot_2 = new_depth
 
     def process_press(self, mx, my):
 
@@ -63,18 +59,22 @@ class Neutreeko:
         elif self.__state == config.State.PLAYER_VS_PLAYER:
             self.__game_board.press(mx, my)
 
-        elif self.__state == config.State.PLAYER_VS_BOT:
+        elif self.__state == config.State.PLAYER_VS_BOT and self.__game_board.get_player_turn() == 1:
             self.__game_board.press(mx, my)
 
-        elif self.__state == config.State.BOT_VS_PLAYER:
+        elif self.__state == config.State.BOT_VS_PLAYER and self.__game_board.get_player_turn() == 2:
             self.__game_board.press(mx, my)
 
-        elif self.__state == config.State.BOT_VS_BOT:
-            self.__game_board.press(mx, my)
+    def process_release(self):
+        if self.__state == config.State.MENU:
+            self.__game_menu.release()
+
+    def process_drag(self, mx):
+        if self.__state == config.State.MENU:
+            self.__game_menu.drag(mx)
 
     def update(self):
-
-        if gameUtils.GameUtils.check_game_over_full(self.__game_board.get_state()):
+        if self.__game_board.is_game_over() or self.__game_board.is_bot_move_processing():
             return
 
         move = self.__game_board.get_move()
@@ -90,30 +90,21 @@ class Neutreeko:
         else:
             if self.__game_board.get_player_turn() == 1:
                 if (self.__state == config.State.BOT_VS_PLAYER) or (self.__state == config.State.BOT_VS_BOT):
-
-                    print("Board input:")
-                    pprint(self.__game_board.get_state())
-                    score, move = self.__bot_1.minimax_alpha_beta_with_move(True, self.__game_board.get_player_turn(), self.__game_board.get_state(), self.__depth, self.__bot_1.MIN, self.__bot_1.MAX)
-                    print("Player: 1")
-                    print("Move: " + str(move) + " with a score of " + str(score))
-                    self.__game_board.apply_move(move)
-                    print("Player 2")
+                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1,))
+                    move_thread.start()
 
             elif self.__game_board.get_player_turn() == 2:
                 if (self.__state == config.State.PLAYER_VS_BOT) or (self.__state == config.State.BOT_VS_BOT):
+                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2,))
+                    move_thread.start()
 
-                    print("Board input:")
-                    pprint(self.__game_board.get_state())
-                    print(self.__depth)
-                    score, move = self.__bot_2.minimax_alpha_beta_with_move(True, self.__game_board.get_player_turn(), self.__game_board.get_state(), self.__depth, self.__bot_2.MIN, self.__bot_2.MAX)
-                    print("Player: 2")
-                    print("Move: " + str(move) + " with a score of " + str(score))
-                    self.__game_board.apply_move(move)
-                    print("Player 1")
-
-        if gameUtils.GameUtils.check_game_over_full(self.__game_board.get_state()):
-            print("GAME OVER! Player: {} lost!".format(self.__game_board.get_player_turn()))
-
+        # if self.__game_board.is_game_over():
+        #     print("GAME OVER! Player: {} lost!".format(self.__game_board.get_player_turn()))
+        #     print(self.__game_board.get_played_moves())
+        #
+        # elif self.__game_board.is_draw():
+        #     print("DRAW!")
+        #     print(self.__game_board.get_played_moves())
 
 
 neutreeko = Neutreeko()
