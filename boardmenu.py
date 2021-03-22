@@ -71,11 +71,11 @@ class GameOverMenu:
 
         self._rematch_button = None
         self._rematch_button_text = "Rematch"
-        self._rematch_button_response = responses.StaticResponse(config.State.PLAYER_VS_PLAYER)
+        self._rematch_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_PLAYER)
 
         self._leave_button = None
         self._leave_button_text = "Leave"
-        self._leave_button_response = responses.StaticResponse(config.State.MENU)
+        self._leave_button_response = responses.ChangeStateResponse(config.State.MENU)
 
         self.__buttons_list = []
         self.__create_buttons()
@@ -139,7 +139,7 @@ class BoardMenu:
 
     def __init__(self, position):
         self.__position = position
-        self.__title_font_size = 50
+        self.__title_font_size = 30
         self.__title_color = (0, 0, 0)
         self.__winner_font_size = 40
         self.__winner_color = (0, 0, 0)
@@ -163,6 +163,9 @@ class BoardMenu:
         self.__current_menu = self.__player_turn_menu
         self.__current_state = config.BoardMenuState.PLAYER_TURN_MENU
 
+    def get_current_menu(self):
+        return self.__current_menu
+
     def get_current_state(self):
         return self.__current_state
 
@@ -175,3 +178,27 @@ class BoardMenu:
     def change_menu(self, state):
         self.__current_state = state
         self.__current_menu = self.__menus[state]
+
+
+class PlayerMenu:
+    def __init__(self, board, position):
+        self.__board = board
+        self.__x, self.__y = position
+        self.__text_font_size = 15
+        self.__text_color = (0, 0, 0)
+
+        self._rematch_button = None
+        self._rematch_button_text = "Rematch"
+        self._rematch_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_PLAYER)
+
+        self._leave_button = None
+        self._leave_button_text = "Leave"
+        self._leave_button_response = responses.ChangeStateResponse(config.State.MENU)
+
+        self._rematch_button = None
+        self._rematch_button_text = "Resign"
+        self._rematch_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_PLAYER)
+
+        self._leave_button = None
+        self._leave_button_text = "Offer draw"
+        self._leave_button_response = responses.ChangeStateResponse(config.State.MENU)

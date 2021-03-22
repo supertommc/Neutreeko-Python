@@ -109,7 +109,7 @@ class PlayerTurnMenuView:
     def display(player_turn):
 
         # display title
-        text_size(player_turn.get_title_text())
+        text_size(player_turn.get_title_font_size())
         fill(player_turn.get_title_color()[0], player_turn.get_title_color()[1], player_turn.get_title_color()[2])
         text(player_turn.get_title_text(), player_turn.get_title_x(), player_turn.get_title_y())
 
@@ -125,7 +125,9 @@ class BoardMenuView:
 
     @staticmethod
     def display(board_menu):
-        pass
+        state = board_menu.get_current_state()
+        if state == config.BoardMenuState.PLAYER_TURN_MENU:
+            PlayerTurnMenuView.display(board_menu.get_current_menu())
 
 
 class BoardView:
@@ -142,6 +144,7 @@ class BoardView:
                 PieceView.display(tile.get_piece())
 
         ScoreBarView.display(game_board.get_score_bar())
+        # BoardMenuView.display(game_board.get_board_menu())
 
 
 def setup():

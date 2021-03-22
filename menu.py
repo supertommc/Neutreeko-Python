@@ -24,19 +24,19 @@ class Menu:
 
         self.__player_vs_player_button = None
         self.__player_vs_player_button_text = "PLAYER VS PLAYER"
-        self.__player_vs_player_button_response = responses.StaticResponse(config.State.PLAYER_VS_PLAYER)
+        self.__player_vs_player_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_PLAYER)
 
         self.__player_vs_bot_button = None
         self.__player_vs_bot_button_text = "PLAYER VS BOT"
-        self.__player_vs_bot_button_response = responses.StaticResponse(config.State.PLAYER_VS_BOT)
+        self.__player_vs_bot_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_BOT)
 
         self.__bot_vs_player_button = None
         self.__bot_vs_player_button_text = "BOT VS PLAYER"
-        self.__bot_vs_player_button_response = responses.StaticResponse(config.State.BOT_VS_PLAYER)
+        self.__bot_vs_player_button_response = responses.ChangeStateResponse(config.State.BOT_VS_PLAYER)
 
         self.__bot_vs_bot_button = None
         self.__bot_vs_bot_button_text = "BOT VS BOT"
-        self.__bot_vs_bot_button_response = responses.StaticResponse(config.State.BOT_VS_BOT)
+        self.__bot_vs_bot_button_response = responses.ChangeStateResponse(config.State.BOT_VS_BOT)
 
         self.__depth_slide_button_bot_1 = None
         self.__depth_slide_button_bot_1_prefix = "DEPTH BOT 1: "

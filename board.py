@@ -248,7 +248,9 @@ class ScoreBar:
 class Board:
 
     def __init__(self, state):
-        self.__state = state
+        self.__initial_game_state = state
+        self.__game_state = state
+        self.__state = config.BoardState.PLAYER_TURN
 
         self.__move = Move()
 
@@ -295,11 +297,11 @@ class Board:
 
     def __insert_pieces_from_state(self):
         i = 0
-        for row in range(len(self.__state)):
-            for col in range(len(self.__state[0])):
-                if self.__state[row][col] != 0:
-                    piece = Piece((0, 0), self.__pieces_radius, self.__state[row][col],
-                                  self.__get_piece_color(self.__state[row][col]))
+        for row in range(len(self.__game_state)):
+            for col in range(len(self.__game_state[0])):
+                if self.__game_state[row][col] != 0:
+                    piece = Piece((0, 0), self.__pieces_radius, self.__game_state[row][col],
+                                  self.__get_piece_color(self.__game_state[row][col]))
                     self.__tiles[i].insert_piece(piece)
                 i += 1
 
@@ -319,6 +321,9 @@ class Board:
     def get_score_bar(self):
         return self.__score_bar
 
+    def get_board_menu(self):
+        return self.__board_menu
+
     def get_player_turn(self):
         return self.__player_turn
 
@@ -326,7 +331,7 @@ class Board:
         return 2 if self.__player_turn == 1 else 1
 
     def get_state(self):
-        return self.__state
+        return self.__game_state
 
     def get_played_moves(self):
         return self.__played_moves
@@ -334,15 +339,15 @@ class Board:
     def is_bot_move_processing(self):
         return self.__bot_move_processing
 
-    def set_state(self, new_state):
-        self.__state = new_state
+    def set_game_state(self, new_state):
+        self.__game_state = new_state
         self.__insert_pieces_from_state()
 
-    def __update_state(self):
-        self.__state = [[0] * 5 for _ in range(5)]
+    def __update_game_state(self):
+        self.__game_state = [[0] * 5 for _ in range(5)]
 
         for tile in self.__tiles:
-            self.__state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
+            self.__game_state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
 
     def __change_turn(self):
         self.__player_turn = 2 if self.__player_turn == 1 else 1
@@ -353,7 +358,7 @@ class Board:
         self.__store_move(self.__move.get_coords())
         self.__move.finish()
         self.__change_turn()
-        self.__update_state()
+        self.__update_game_state()
 
     def __apply_move(self, move):
         initial_x, initial_y, final_x, final_y = move
@@ -369,7 +374,7 @@ class Board:
 
     def __move_is_valid(self):
         move = self.__move.get_coords()
-        valid_moves = MoveGenerator.generate_all_moves(self.__state, self.__player_turn)
+        valid_moves = MoveGenerator.generate_all_moves(self.__game_state, self.__player_turn)
 
         return move in valid_moves
 
@@ -385,7 +390,7 @@ class Board:
             self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_DRAW_MENU)
             return True
 
-        result = GameUtils.check_game_over_full(self.__state)
+        result = GameUtils.check_game_over_full(self.__game_state)
 
         if result == 1:
             self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_WINNER_MENU)
@@ -399,8 +404,21 @@ class Board:
 
         return False
 
+    def check_game_over(self):
+        if self.__is_draw():
+            self.__state = config.BoardState.GAME_OVER_DRAW
+            return
+
+        result = GameUtils.check_game_over_full(self.__game_state)
+
+        if result == 1:
+            self.__state = config.BoardState.GAME_OVER_WINNER_1
+
+        elif result == 2:
+            self.__state = config.BoardState.GAME_OVER_WINNER_1
+
     def __store_current_position(self):
-        item = GameUtils.full_game_to_tuple(self.__state)
+        item = GameUtils.full_game_to_tuple(self.__game_state)
         if item in self.__played_states.keys():
             self.__played_states[item] += 1
         else:
@@ -409,21 +427,40 @@ class Board:
     def __store_move(self, move):
         self.__played_moves.append(move)
 
+    def __start_move(self):
+        self.__state = config.BoardState.PIECE_MOVING
+        self.__move.start()
+
+    def __finish_move(self):
+        self.__state = config.BoardState.PLAYER_TURN
+        self.__move.finish()
+
+    def reset(self):
+        self.__game_state = self.__initial_game_state
+
+        self.__played_states.clear()
+        self.__played_moves.clear()
+
+        self.__state = config.BoardState.PLAYER_TURN
+        self.__player_turn = 1
+
     def apply_bot_move(self, depth):
         self.__bot_move_processing = True
+        self.__state = config.BoardState.BOT_PROCESSING
         if self.__player_turn == 1:
             assert(self.__player_turn == 1)
             assert(self.__player_turn == self.__bot_1.piece)
-            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
         else:
             assert (self.__player_turn == 2)
             assert (self.__player_turn == self.__bot_2.piece)
-            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__state, depth, AI.MIN, AI.MAX)
+            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
 
         print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
         self.__score_bar.update(self.__player_turn, score)
         self.__apply_move(move)
         self.__bot_move_processing = False
+        self.__state = config.BoardState.PLAYER_TURN
 
     def press(self, mx, my):
 
