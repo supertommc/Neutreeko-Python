@@ -9,10 +9,10 @@ class Game:
     def __init__(self):
         self.state = [
                         [0, 2, 0, 2, 0],
-                        [0, 1, 1, 0, 0],
+                        [0, 0, 1, 0, 0],
                         [0, 0, 0, 0, 0],
                         [0, 0, 2, 0, 0],
-                        [0, 0, 0, 1, 0]
+                        [0, 1, 0, 1, 0]
                     ]
 
         self.played_states = {}
@@ -48,16 +48,29 @@ class Game:
 
             move = (initial_x, initial_y, final_x, final_y)
 
+            is_valid = True
+
             if move in valid_moves:
                 is_valid = True
         
+        return move
+
+    def ask_for_input_alt(self, piece):
+        initial_x = int(input("Initial x: "))
+        initial_y = int(input("Initial y: "))
+        final_x = int(input("Final x: "))
+        final_y = int(input("Final y: "))
+
+        move = (initial_x, initial_y, final_x, final_y)
+
         return move
 
     def game_loop(self):
 
         current_player = 1
 
-        bot = AI()
+        bot1 = AI(1)
+        bot2 = AI(2)
 
         while True:
             
@@ -67,15 +80,18 @@ class Game:
                 print("Game Over!!")
                 break
 
-            score, move = bot.minimax_alpha_beta_with_move(True, 1, self.state, 6, bot.MIN, bot.MAX)
-
-            print("Player: " + str(current_player))
-            print("Move: " + str(move) + " with a score of " + str(score))
+            
+            player_move = self.ask_for_input_alt(1)
 
             self.store_current_position()
-            self.store_move(move)
+            self.store_move(player_move)
 
-            GameUtils.make_move(self.state, move)
+            score, move = bot1.minimax_alpha_beta_with_move_faster(True, 1, self.state, 6, -999999, 999999)
+            print("Move: " + str(move) + " with a score of " + str(score))
+
+            GameUtils.make_move(self.state, player_move)
+
+            print("Player: " + str(current_player))
 
             pprint(self.state)
 
@@ -83,9 +99,10 @@ class Game:
                 print("Game Over!!")
                 break
 
-            self.askForInput(2)
+            player_move = self.ask_for_input_alt(2)
 
-            player_move = (initial_x, initial_y, final_x, final_y)
+            score, move = bot2.minimax_alpha_beta_with_move_faster(True, 2, self.state, 6, -999999, 999999)
+            print("Move: " + str(move) + " with a score of " + str(score))
 
             self.store_current_position()
             self.store_move(player_move)
