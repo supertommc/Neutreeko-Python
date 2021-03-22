@@ -48,12 +48,6 @@ class AI:
         return val
 
 
-    """
-        peças no centro
-        peças juntas sem estarem cercadas
-        peças do adversario no meio das tuas peças
-        casas que tu controlas e o adversario nao
-    """
     def evaluate_position(self, piece, game, depth):
 
         if GameUtils.check_game_over(game, self.piece):
