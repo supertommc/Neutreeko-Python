@@ -67,10 +67,10 @@ class OpeningsTree:
 
     def dfsFindMoveAux(self, node, stored_moves, piece):
 
-        move = 0
+        move = None
         
         if (node.depth == len(stored_moves)):
-            candidate_move = 0
+            candidate_move = None
             for child in node.children:
                 if child.winner == piece:
                     return child.move
@@ -202,7 +202,6 @@ class OpeningsBook:
             elif re.search(pattern2, line):
                 res_list.append(1)
         
-        print("Res_list size: " + str(len(res_list)))
         self.tree.res_list = res_list
         self.tree.dfsAddWinner()
 
