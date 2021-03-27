@@ -4,7 +4,8 @@ import responses
 
 
 class PlayerMenu:
-    def __init__(self, position):
+    def __init__(self, player, position):
+        self.__player = player
         self.__x, self.__y = position
         self.__turn_text = "YOUR TURN"
         self.__win_text = "YOU WIN"
@@ -33,23 +34,23 @@ class PlayerMenu:
 
         self.__resign_button = None
         self.__resign_button_text = "Resign"
-        self.__resign_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_PLAYER)
+        self.__resign_button_response = responses.ResignResponse(self.__player)
 
         self.__offer_draw_button = None
         self.__offer_draw_button_text = "Offer draw"
-        self.__offer_draw_button_response = responses.ChangeStateResponse(config.State.MENU)
+        self.__offer_draw_button_response = responses.OfferDrawResponse(self.__player)
 
         self.__cancel_draw_button = None
         self.__cancel_draw_button_text = "Cancel draw"
-        self.__cancel_draw_button_response = responses.ChangeStateResponse(config.State.MENU)
+        self.__cancel_draw_button_response = responses.CancelDrawResponse()
 
         self.__accept_draw_button = None
         self.__accept_draw_button_text = "Accept draw"
-        self.__accept_draw_button_response = responses.ChangeStateResponse(config.State.MENU)
+        self.__accept_draw_button_response = responses.AcceptDrawResponse()
 
         self.__decline_draw_button = None
         self.__decline_draw_button_text = "Decline draw"
-        self.__decline_draw_button_response = responses.ChangeStateResponse(config.State.MENU)
+        self.__decline_draw_button_response = responses.CancelDrawResponse()
 
         self.__current_text = self.__turn_text
         self.__text_x = 0
@@ -152,10 +153,9 @@ class PlayerMenu:
             self.__current_buttons_list.append(self.__resign_button)
             self.__current_buttons_list.append(self.__cancel_draw_button)
 
-        elif state == config.BoardState.OPPONENT_OFFERED_DRAW:
+        elif state == config.BoardState.OPPONENT_OFFER_DRAW:
             self.__current_text = self.__turn_text
             self.__update_text_position()
-            self.__current_buttons_list.append(self.__resign_button)
             self.__current_buttons_list.append(self.__accept_draw_button)
             self.__current_buttons_list.append(self.__decline_draw_button)
 

@@ -103,5 +103,7 @@ class Neutreeko:
                     move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book))
                     move_thread.start()
 
+        self.__game_board.check_game_over()
+
 
 neutreeko = Neutreeko()

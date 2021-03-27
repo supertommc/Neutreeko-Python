@@ -132,8 +132,8 @@ class BoardView:
                 PieceView.display(tile.get_piece())
 
         ScoreBarView.display(game_board.get_score_bar())
-        PlayerMenuView.display(game_board.get_player_1_menu())
-        PlayerMenuView.display(game_board.get_player_2_menu())
+        PlayerMenuView.display(game_board.get_player_menu(1))
+        PlayerMenuView.display(game_board.get_player_menu(2))
 
 
 def setup():

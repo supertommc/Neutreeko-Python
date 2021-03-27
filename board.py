@@ -283,11 +283,16 @@ class Board:
         self.__bot_1 = AI(1)
         self.__bot_2 = AI(2)
 
+        self.__player_1_resign = False
+        self.__player_2_resign = False
+        self.__draw_accepted = False
+        self.__game_over = False
+
         self.__bot_move_processing = False
         self.__opening_book_active = False
 
-        self.__player_1_menu = PlayerMenu((100, 610))
-        self.__player_2_menu = PlayerMenu((100, 50))
+        self.__player_1_menu = PlayerMenu(1, (100, 610))
+        self.__player_2_menu = PlayerMenu(2, (100, 50))
 
         self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
         self.__player_2_menu.update(config.BoardState.WAIT)
@@ -327,17 +332,15 @@ class Board:
     def get_score_bar(self):
         return self.__score_bar
 
-    def get_player_1_menu(self):
-        return self.__player_1_menu
-
-    def get_player_2_menu(self):
-        return self.__player_2_menu
+    def get_player_menu(self, player):
+        if player == 1:
+            return self.__player_1_menu
+        elif player == 2:
+            return self.__player_2_menu
+        return None
 
     def get_player_turn(self):
         return self.__player_turn
-
-    def get_opponent_turn(self):
-        return 2 if self.__player_turn == 1 else 1
 
     def get_state(self):
         return self.__game_state
@@ -350,6 +353,18 @@ class Board:
 
     def is_opening_book_active(self):
         return self.__opening_book_active
+
+    def is_game_over(self):
+        return self.__game_over
+
+    def resign_player(self, player):
+        if player == 1:
+            self.__player_1_resign = True
+        elif player == 2:
+            self.__player_2_resign = True
+
+    def accept_draw(self):
+        self.__draw_accepted = True
 
     def set_game_state(self, new_state):
         self.__game_state = new_state
@@ -406,26 +421,41 @@ class Board:
                 return True
         return False
 
-    def is_game_over(self):
-
-        if self.__is_draw():
+    def check_game_over(self):
+        if self.__is_draw() or self.__draw_accepted:
             self.__player_1_menu.update(config.BoardState.DRAW)
             self.__player_2_menu.update(config.BoardState.DRAW)
-            return True
+            self.__game_over = True
 
         result = GameUtils.check_game_over_full(self.__game_state)
 
-        if result == 1:
+        if (result == 1) or self.__player_2_resign:
             self.__player_1_menu.update(config.BoardState.WIN)
             self.__player_2_menu.update(config.BoardState.LOSE)
-            return True
+            self.__game_over = True
 
-        elif result == 2:
+        elif (result == 2) or self.__player_1_resign:
             self.__player_1_menu.update(config.BoardState.LOSE)
             self.__player_2_menu.update(config.BoardState.WIN)
-            return True
+            self.__game_over = True
 
-        return False
+    def offer_draw_player(self, player):
+
+        if player == 1:
+            self.__player_1_menu.update(config.BoardState.OFFER_DRAW)
+            self.__player_2_menu.update(config.BoardState.OPPONENT_OFFER_DRAW)
+
+        elif player == 2:
+            self.__player_1_menu.update(config.BoardState.OPPONENT_OFFER_DRAW)
+            self.__player_2_menu.update(config.BoardState.OFFER_DRAW)
+
+    def cancel_draw(self):
+        if self.__player_turn == 1:
+            self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
+            self.__player_2_menu.update(config.BoardState.WAIT)
+        elif self.__player_turn == 2:
+            self.__player_1_menu.update(config.BoardState.WAIT)
+            self.__player_2_menu.update(config.BoardState.PLAYER_TURN)
 
     def __store_current_position(self):
         item = GameUtils.full_game_to_tuple(self.__game_state)
@@ -446,6 +476,10 @@ class Board:
 
     def reset(self):
         self.__game_state = self.__initial_game_state
+        self.__player_1_resign = False
+        self.__player_2_resign = False
+        self.__draw_accepted = False
+        self.__game_over = False
 
         self.__played_states.clear()
         self.__played_moves.clear()
@@ -503,5 +537,3 @@ class Board:
             else:
                 print("Invalid Move!")
                 self.__move.reset()
-
-

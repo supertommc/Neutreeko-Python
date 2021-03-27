@@ -38,7 +38,7 @@ class State:
 class BoardState:
     PLAYER_TURN = 0
     OFFER_DRAW = 1
-    OPPONENT_OFFERED_DRAW = 2
+    OPPONENT_OFFER_DRAW = 2
     WIN = 3
     LOSE = 4
     DRAW = 5
