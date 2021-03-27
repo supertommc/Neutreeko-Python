@@ -103,31 +103,19 @@ class ScoreBarView:
         rect(score_bar.get_x(), score_bar.get_bar_y(), score_bar.get_width(), score_bar.get_current_bar_height())
 
 
-class PlayerTurnMenuView:
+class PlayerMenuView:
 
     @staticmethod
-    def display(player_turn):
+    def display(player_menu):
 
         # display title
-        text_size(player_turn.get_title_font_size())
-        fill(player_turn.get_title_color()[0], player_turn.get_title_color()[1], player_turn.get_title_color()[2])
-        text(player_turn.get_title_text(), player_turn.get_title_x(), player_turn.get_title_y())
+        text_size(player_menu.get_text_font_size())
+        fill(player_menu.get_text_color()[0], player_menu.get_text_color()[1], player_menu.get_text_color()[2])
+        text(player_menu.get_current_text(), player_menu.get_text_x(), player_menu.get_text_y())
 
-        # display piece
-        if player_turn.get_player() == 1:
-            image(Config.black_piece_image, Config.get_circle_top_left_position(player_turn.get_piece_x(), player_turn.get_piece_x(), 50))
-
-        elif player_turn.get_player() == 2:
-            image(Config.white_piece_image, Config.get_circle_top_left_position(player_turn.get_piece_x(), player_turn.get_piece_x(), 50))
-
-
-class BoardMenuView:
-
-    @staticmethod
-    def display(board_menu):
-        state = board_menu.get_current_state()
-        if state == config.BoardMenuState.PLAYER_TURN_MENU:
-            PlayerTurnMenuView.display(board_menu.get_current_menu())
+        # display buttons
+        for button in player_menu.get_current_buttons_list():
+            ButtonView.display(button)
 
 
 class BoardView:
@@ -144,7 +132,8 @@ class BoardView:
                 PieceView.display(tile.get_piece())
 
         ScoreBarView.display(game_board.get_score_bar())
-        # BoardMenuView.display(game_board.get_board_menu())
+        PlayerMenuView.display(game_board.get_player_1_menu())
+        PlayerMenuView.display(game_board.get_player_2_menu())
 
 
 def setup():

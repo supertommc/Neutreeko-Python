@@ -2,6 +2,7 @@ import config
 import menu
 import board
 import threading
+from openings_book import OpeningsBook
 
 
 class Neutreeko:
@@ -18,6 +19,10 @@ class Neutreeko:
             [0, 0, 2, 0, 0],
             [0, 1, 0, 1, 0]
         ]
+
+        self.__opening_book = OpeningsBook()
+        self.__opening_book.loadOpenings("openings.txt")
+
         self.__game_menu = menu.Menu()
         self.__game_board = board.Board(self.__game_state)
 
@@ -90,12 +95,12 @@ class Neutreeko:
         else:
             if self.__game_board.get_player_turn() == 1:
                 if (self.__state == config.State.BOT_VS_PLAYER) or (self.__state == config.State.BOT_VS_BOT):
-                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1,))
+                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, self.__opening_book))
                     move_thread.start()
 
             elif self.__game_board.get_player_turn() == 2:
                 if (self.__state == config.State.PLAYER_VS_BOT) or (self.__state == config.State.BOT_VS_BOT):
-                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2,))
+                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book))
                     move_thread.start()
 
         # if self.__game_board.is_game_over():

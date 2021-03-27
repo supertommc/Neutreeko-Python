@@ -1,8 +1,8 @@
 from moveGenerator import MoveGenerator
 from gameUtils import GameUtils
 from ai import AI
-from boardmenu import BoardMenu
 import config
+from playermenu import PlayerMenu
 
 
 class Piece:
@@ -260,7 +260,6 @@ class Board:
         self.__score_bar = ScoreBar(self.__score_bar_position, self.__score_bar_width, self.__score_bar_height)
 
         self.__board_menu_position = (750, 100)
-        self.__board_menu = BoardMenu(self.__board_menu_position)
 
         self.__x = 100
         self.__y = 100
@@ -285,6 +284,13 @@ class Board:
         self.__bot_2 = AI(2)
 
         self.__bot_move_processing = False
+        self.__opening_book_active = False
+
+        self.__player_1_menu = PlayerMenu((100, 610))
+        self.__player_2_menu = PlayerMenu((100, 50))
+
+        self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
+        self.__player_2_menu.update(config.BoardState.WAIT)
 
     def __create_tiles(self):
         for row in range(5):
@@ -321,8 +327,11 @@ class Board:
     def get_score_bar(self):
         return self.__score_bar
 
-    def get_board_menu(self):
-        return self.__board_menu
+    def get_player_1_menu(self):
+        return self.__player_1_menu
+
+    def get_player_2_menu(self):
+        return self.__player_2_menu
 
     def get_player_turn(self):
         return self.__player_turn
@@ -339,9 +348,15 @@ class Board:
     def is_bot_move_processing(self):
         return self.__bot_move_processing
 
+    def is_opening_book_active(self):
+        return self.__opening_book_active
+
     def set_game_state(self, new_state):
         self.__game_state = new_state
         self.__insert_pieces_from_state()
+
+    def set_opening_book_active(self, is_active):
+        self.__opening_book_active = is_active
 
     def __update_game_state(self):
         self.__game_state = [[0] * 5 for _ in range(5)]
@@ -350,8 +365,15 @@ class Board:
             self.__game_state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
 
     def __change_turn(self):
-        self.__player_turn = 2 if self.__player_turn == 1 else 1
-        self.__board_menu.change_player_turn(self.__player_turn)
+        if self.__player_turn == 1:
+            self.__player_turn = 2
+            self.__player_1_menu.update(config.BoardState.WAIT)
+            self.__player_2_menu.update(config.BoardState.PLAYER_TURN)
+
+        elif self.__player_turn == 2:
+            self.__player_turn = 1
+            self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
+            self.__player_2_menu.update(config.BoardState.WAIT)
 
     def finish_piece_move(self):
         self.__store_current_position()
@@ -387,35 +409,23 @@ class Board:
     def is_game_over(self):
 
         if self.__is_draw():
-            self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_DRAW_MENU)
+            self.__player_1_menu.update(config.BoardState.DRAW)
+            self.__player_2_menu.update(config.BoardState.DRAW)
             return True
 
         result = GameUtils.check_game_over_full(self.__game_state)
 
         if result == 1:
-            self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_WINNER_MENU)
-            self.__board_menu.set_winner(1)
+            self.__player_1_menu.update(config.BoardState.WIN)
+            self.__player_2_menu.update(config.BoardState.LOSE)
             return True
 
         elif result == 2:
-            self.__board_menu.change_menu(config.BoardMenuState.GAME_OVER_WINNER_MENU)
-            self.__board_menu.set_winner(2)
+            self.__player_1_menu.update(config.BoardState.LOSE)
+            self.__player_2_menu.update(config.BoardState.WIN)
             return True
 
         return False
-
-    def check_game_over(self):
-        if self.__is_draw():
-            self.__state = config.BoardState.GAME_OVER_DRAW
-            return
-
-        result = GameUtils.check_game_over_full(self.__game_state)
-
-        if result == 1:
-            self.__state = config.BoardState.GAME_OVER_WINNER_1
-
-        elif result == 2:
-            self.__state = config.BoardState.GAME_OVER_WINNER_1
 
     def __store_current_position(self):
         item = GameUtils.full_game_to_tuple(self.__game_state)
@@ -428,7 +438,6 @@ class Board:
         self.__played_moves.append(move)
 
     def __start_move(self):
-        self.__state = config.BoardState.PIECE_MOVING
         self.__move.start()
 
     def __finish_move(self):
@@ -444,9 +453,11 @@ class Board:
         self.__state = config.BoardState.PLAYER_TURN
         self.__player_turn = 1
 
-    def apply_bot_move(self, depth):
+    def apply_bot_move(self, depth, opening_book):
         self.__bot_move_processing = True
-        self.__state = config.BoardState.BOT_PROCESSING
+
+        opening_book.find_next_move()
+
         if self.__player_turn == 1:
             assert(self.__player_turn == 1)
             assert(self.__player_turn == self.__bot_1.piece)
@@ -480,7 +491,6 @@ class Board:
 
             if self.__move_is_valid():
                 self.__move.start()
-                # self.finish_piece_move()
 
             else:
                 print("Invalid Move!")

@@ -114,7 +114,6 @@ class OpeningsTree:
             res = self.consume_res_list_item()
             if res != 5:
                 if node.depth % 2 == 0:
-                    print("Node depth: " + str(node.depth))
                     node.winner = 2
                 else:
                     node.winner = 1
@@ -202,20 +201,9 @@ class OpeningsBook:
             elif re.search(pattern2, line):
                 res_list.append(1)
         
-        print("Res_list size: " + str(len(res_list)))
         self.tree.res_list = res_list
         self.tree.dfsAddWinner()
 
     
     def find_next_move(self, stored_moves, piece):
         return self.tree.dfsFindMove(stored_moves, piece)
-
-
-
-book = OpeningsBook()
-
-book.loadOpenings("openings.txt")
-
-#book.tree.dfsPrint()
-
-print(book.find_next_move([(1, 4, 2, 4), (2, 3, 2, 2)], 1))

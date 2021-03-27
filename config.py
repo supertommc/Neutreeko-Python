@@ -44,8 +44,9 @@ class BoardMenuState:
 
 class BoardState:
     PLAYER_TURN = 0
-    GAME_OVER_WINNER_1 = 1
-    GAME_OVER_WINNER_2 = 2
-    GAME_OVER_DRAW = 3
-    PIECE_MOVING = 4
-    BOT_PROCESSING = 5
+    OFFER_DRAW = 1
+    OPPONENT_OFFERED_DRAW = 2
+    WIN = 3
+    LOSE = 4
+    DRAW = 5
+    WAIT = 6
