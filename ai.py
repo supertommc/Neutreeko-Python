@@ -1,9 +1,5 @@
-
 from gameUtils import GameUtils
-from moveGenerator import generate_all_moves
-from timeit import default_timer as timer
-import random
-from numba import njit
+from moveGenerator import MoveGenerator
 
 
 class AI:
@@ -102,7 +98,7 @@ class AI:
             return res
 
         pos_scores = []
-        moves = generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         if is_max:
             for move in moves:
@@ -148,7 +144,7 @@ class AI:
             return self.evaluate_position(get_other_piece(current_player), game)
 
         pos_scores = []
-        moves = generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         for move in moves:
             GameUtils.make_move(game, move)
@@ -173,7 +169,7 @@ class AI:
             return res, 0
 
         pos_scores = []
-        moves = generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         for move in moves:
             GameUtils.make_move(game, move)
@@ -205,7 +201,7 @@ class AI:
         """
 
         pos_scores = []
-        moves = generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         if is_max:
             for move in moves:
@@ -266,7 +262,7 @@ class AI:
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
         
-        moves = generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         if is_max:
             score = self.MIN
@@ -308,7 +304,7 @@ class AI:
 
 
     def generate_all_moves_sort(self, game, current_player, depth, is_max):
-        moves = generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
         moves_with_score = []
         for move in moves:
             GameUtils.make_move(game, move)

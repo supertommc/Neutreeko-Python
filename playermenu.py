@@ -25,7 +25,7 @@ class PlayerMenu:
 
         self.__rematch_button = None
         self.__rematch_button_text = "Rematch"
-        self.__rematch_button_response = responses.ChangeStateResponse(config.State.PLAYER_VS_PLAYER)
+        self.__rematch_button_response = responses.RematchResponse()
 
         self.__leave_button = None
         self.__leave_button_text = "Leave"

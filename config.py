@@ -33,13 +33,6 @@ class State:
     PLAYER_VS_BOT = 2
     BOT_VS_PLAYER = 3
     BOT_VS_BOT = 4
-    GAME_OVER = 5
-
-
-class BoardMenuState:
-    PLAYER_TURN_MENU = 0
-    GAME_OVER_WINNER_MENU = 1
-    GAME_OVER_DRAW_MENU = 2
 
 
 class BoardState:

@@ -19,11 +19,10 @@ class SlideResponse:
 
 
 class RematchResponse:
-    def __init__(self, board):
-        self.__board = board
 
-    def on_press(self):
-        self.__board.reset()
+    @staticmethod
+    def on_press():
+        app.neutreeko.get_board().reset()
 
 
 class LeaveResponse:

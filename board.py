@@ -449,6 +449,11 @@ class Board:
 
         self.__played_states.clear()
         self.__played_moves.clear()
+        self.__tiles.clear()
+        self.__move.reset()
+
+        self.__create_tiles()
+        self.__insert_pieces_from_state()
 
         self.__state = config.BoardState.PLAYER_TURN
         self.__player_turn = 1
@@ -475,19 +480,22 @@ class Board:
 
     def press(self, mx, my):
 
+        self.__player_1_menu.press(mx, my)
+        self.__player_2_menu.press(mx, my)
+
         if not self.__move.is_start_tile_selected():
             for tile in self.__tiles:
                 if tile.is_hover(mx, my):
                     self.__move.set_start_tile(tile)
+                    print("Start tile: {}".format(self.__move.get_start_tile().get_coords()))
                     break
-            print("Start tile: {}".format(self.__move.get_start_tile().get_coords()))
 
         elif not self.__move.is_dest_tile_selected():
             for tile in self.__tiles:
                 if tile.is_hover(mx, my):
                     self.__move.set_dest_tile(tile)
+                    print("Dest tile: {}".format(self.__move.get_dest_tile().get_coords()))
                     break
-            print("Dest tile: {}".format(self.__move.get_dest_tile().get_coords()))
 
             if self.__move_is_valid():
                 self.__move.start()

@@ -1,6 +1,5 @@
-
-
 from gameUtils import GameUtils
+
 
 class MoveGenerator:
 
