@@ -12,6 +12,7 @@ class Neutreeko:
         self.__player = 1
         self.__depth_bot_1 = 4
         self.__depth_bot_2 = 4
+        self.__depth_hint = 6
         self.__game_state = [
             [0, 2, 0, 2, 0],
             [0, 0, 1, 0, 0],
@@ -41,6 +42,9 @@ class Neutreeko:
     def get_board(self):
         return self.__game_board
 
+    def get_depth_hint(self):
+        return self.__depth_hint
+
     def set_state(self, new_state):
         self.__state = new_state
 
@@ -55,6 +59,9 @@ class Neutreeko:
             self.__depth_bot_1 = new_depth
         elif bot == 2:
             self.__depth_bot_2 = new_depth
+
+    def generate_hint(self):
+        self.__game_board.generate_hint(self.__depth_hint)
 
     def process_press(self, mx, my):
 

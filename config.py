@@ -2,7 +2,7 @@ from p5 import create_font
 
 
 class Config:
-    SCREEN_WIDTH = 800
+    SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 700
     BACKGROUND_COLOR = (204, 204, 204)
     BLACK_PIECES_COLOR = (0, 0, 0)

@@ -25,6 +25,13 @@ class RematchResponse:
         app.neutreeko.get_board().reset()
 
 
+class RestartResponse:
+
+    @staticmethod
+    def on_press():
+        app.neutreeko.get_board().reset()
+
+
 class LeaveResponse:
     def __init__(self, board):
         self.__board = board
@@ -62,3 +69,10 @@ class AcceptDrawResponse:
     @staticmethod
     def on_press():
         app.neutreeko.get_board().accept_draw()
+
+
+class HintResponse:
+
+    @staticmethod
+    def on_press():
+        app.neutreeko.generate_hint()

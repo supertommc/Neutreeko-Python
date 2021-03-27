@@ -118,6 +118,28 @@ class PlayerMenuView:
             ButtonView.display(button)
 
 
+class BoardMenuView:
+
+    @staticmethod
+    def display(board_menu):
+
+        # display buttons
+        for button in board_menu.get_buttons():
+            ButtonView.display(button)
+
+
+class HintView:
+
+    @staticmethod
+    def display(hint):
+
+        # display hint line
+        line_color = hint.get_line_color()
+        stroke(line_color[0], line_color[1], line_color[2])
+        line(hint.get_start_move_position(), hint.get_dest_move_position())
+        stroke(0, 0, 0)
+
+
 class BoardView:
 
     @staticmethod
@@ -132,8 +154,12 @@ class BoardView:
                 PieceView.display(tile.get_piece())
 
         ScoreBarView.display(game_board.get_score_bar())
+        BoardMenuView.display(game_board.get_board_menu())
         PlayerMenuView.display(game_board.get_player_menu(1))
         PlayerMenuView.display(game_board.get_player_menu(2))
+
+        if game_board.get_hint() is not None:
+            HintView.display(game_board.get_hint())
 
 
 def setup():
@@ -147,7 +173,6 @@ def setup():
 
 
 def draw():
-    # BoardView.display(neutreeko.get_board())
     clear()
 
     neutreeko.update()

@@ -3,6 +3,7 @@ from gameUtils import GameUtils
 from ai import AI
 import config
 from playermenu import PlayerMenu
+from boardmenu import BoardMenu
 
 
 class Piece:
@@ -51,6 +52,9 @@ class Tile:
 
     def get_y(self):
         return self.__y
+
+    def get_center_position(self):
+        return self.__x + self.__edge // 2, self.__y + self.__edge // 2
 
     def get_coord_x(self):
         return self.__coord_x
@@ -245,6 +249,25 @@ class ScoreBar:
         self.__current_bar_height = self.__height * ratio
 
 
+class Hint:
+
+    def __init__(self, start_move_position, dest_move_position):
+        self.__start_x, self.__start_y = start_move_position
+        self.__start_move_position = start_move_position
+        self.__dest_x, self.__dest_y = dest_move_position
+        self.__dest_move_position = dest_move_position
+        self.__line_color = (255, 0, 0)
+
+    def get_start_move_position(self):
+        return self.__start_move_position
+
+    def get_dest_move_position(self):
+        return self.__dest_move_position
+
+    def get_line_color(self):
+        return self.__line_color
+
+
 class Board:
 
     def __init__(self, state):
@@ -252,33 +275,25 @@ class Board:
         self.__game_state = state
         self.__state = config.BoardState.PLAYER_TURN
 
-        self.__move = Move()
-
-        self.__score_bar_position = (650, 100)
-        self.__score_bar_width = 50
-        self.__score_bar_height = 500
-        self.__score_bar = ScoreBar(self.__score_bar_position, self.__score_bar_width, self.__score_bar_height)
-
-        self.__board_menu_position = (750, 100)
-
         self.__x = 100
         self.__y = 100
         self.__edge = 500
-
-        self.__tiles = []
-        self.__tiles_color = (255, 255, 255)
 
         self.__pieces_radius = 50
         self.__player_1_pieces_color = (255, 0, 0)
         self.__player_2_pieces_color = (255, 255, 255)
 
-        self.__player_turn = 1
-
+        self.__tiles = []
+        self.__tiles_color = (255, 255, 255)
         self.__create_tiles()
         self.__insert_pieces_from_state()
 
+        self.__player_turn = 1
+
         self.__played_states = {}
         self.__played_moves = []
+
+        self.__move = Move()
 
         self.__bot_1 = AI(1)
         self.__bot_2 = AI(2)
@@ -291,11 +306,25 @@ class Board:
         self.__bot_move_processing = False
         self.__opening_book_active = False
 
-        self.__player_1_menu = PlayerMenu(1, (100, 610))
-        self.__player_2_menu = PlayerMenu(2, (100, 50))
+        self.__score_bar_x = self.__x + self.__edge + 50
+        self.__score_bar_y = self.__y
+        self.__score_bar_width = 50
+        self.__score_bar_height = self.__edge
+        self.__score_bar = ScoreBar((self.__score_bar_x, self.__score_bar_y), self.__score_bar_width, self.__score_bar_height)
+
+        self.__board_menu_width = 150
+        self.__board_menu_height = 300
+        self.__board_menu_x = self.__score_bar_x + self.__score_bar_width + 50
+        self.__board_menu_y = self.__y + self.__edge // 2 - self.__board_menu_height // 2
+        self.__board_menu = BoardMenu((self.__board_menu_x, self.__board_menu_y), self.__board_menu_width, self.__board_menu_height)
+
+        self.__player_1_menu = PlayerMenu(1, (self.__x, self.__y + self.__edge + 10))
+        self.__player_2_menu = PlayerMenu(2, (self.__x, 50))
 
         self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
         self.__player_2_menu.update(config.BoardState.WAIT)
+
+        self.__hint = None
 
     def __create_tiles(self):
         for row in range(5):
@@ -332,6 +361,9 @@ class Board:
     def get_score_bar(self):
         return self.__score_bar
 
+    def get_board_menu(self):
+        return self.__board_menu
+
     def get_player_menu(self, player):
         if player == 1:
             return self.__player_1_menu
@@ -347,6 +379,9 @@ class Board:
 
     def get_played_moves(self):
         return self.__played_moves
+
+    def get_hint(self):
+        return self.__hint
 
     def is_bot_move_processing(self):
         return self.__bot_move_processing
@@ -396,6 +431,7 @@ class Board:
         self.__move.finish()
         self.__change_turn()
         self.__update_game_state()
+        self.__hint = None
 
     def __apply_move(self, move):
         initial_x, initial_y, final_x, final_y = move
@@ -474,6 +510,48 @@ class Board:
         self.__state = config.BoardState.PLAYER_TURN
         self.__move.finish()
 
+    def generate_bot_move(self, depth):
+        if self.__player_turn == 1:
+            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+        else:
+            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+        return move
+
+    def generate_hint(self, hint_depth):
+        start_x, start_y, dest_x, dest_y = self.generate_bot_move(hint_depth)
+
+        start_position = None
+        dest_position = None
+
+        for tile in self.__tiles:
+            if tile.get_coords() == (start_x, start_y):
+                start_position = tile.get_center_position()
+
+            elif tile.get_coords() == (dest_x, dest_y):
+                dest_position = tile.get_center_position()
+
+        self.__hint = Hint(start_position, dest_position)
+
+    def apply_bot_move(self, depth, opening_book):
+        self.__bot_move_processing = True
+
+        # opening_book.find_next_move()
+
+        if self.__player_turn == 1:
+            assert(self.__player_turn == 1)
+            assert(self.__player_turn == self.__bot_1.piece)
+            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+        else:
+            assert (self.__player_turn == 2)
+            assert (self.__player_turn == self.__bot_2.piece)
+            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+
+        print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
+        self.__score_bar.update(self.__player_turn, score)
+        self.__apply_move(move)
+        self.__bot_move_processing = False
+        self.__state = config.BoardState.PLAYER_TURN
+
     def reset(self):
         self.__game_state = self.__initial_game_state
         self.__player_1_resign = False
@@ -492,28 +570,11 @@ class Board:
         self.__state = config.BoardState.PLAYER_TURN
         self.__player_turn = 1
 
-    def apply_bot_move(self, depth, opening_book):
-        self.__bot_move_processing = True
-
-        opening_book.find_next_move()
-
-        if self.__player_turn == 1:
-            assert(self.__player_turn == 1)
-            assert(self.__player_turn == self.__bot_1.piece)
-            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
-        else:
-            assert (self.__player_turn == 2)
-            assert (self.__player_turn == self.__bot_2.piece)
-            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
-
-        print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
-        self.__score_bar.update(self.__player_turn, score)
-        self.__apply_move(move)
-        self.__bot_move_processing = False
-        self.__state = config.BoardState.PLAYER_TURN
+        self.__hint = None
 
     def press(self, mx, my):
 
+        self.__board_menu.press(mx, my)
         self.__player_1_menu.press(mx, my)
         self.__player_2_menu.press(mx, my)
 

@@ -162,20 +162,14 @@ class PlayerMenu:
         elif state == config.BoardState.WIN:
             self.__current_text = self.__win_text
             self.__update_text_position()
-            self.__current_buttons_list.append(self.__rematch_button)
-            self.__current_buttons_list.append(self.__leave_button)
 
         elif state == config.BoardState.LOSE:
             self.__current_text = self.__lose_text
             self.__update_text_position()
-            self.__current_buttons_list.append(self.__rematch_button)
-            self.__current_buttons_list.append(self.__leave_button)
 
         elif state == config.BoardState.DRAW:
             self.__current_text = self.__draw_text
             self.__update_text_position()
-            self.__current_buttons_list.append(self.__rematch_button)
-            self.__current_buttons_list.append(self.__leave_button)
 
         else:
             print("Invalid state!")
