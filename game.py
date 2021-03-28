@@ -1,18 +1,18 @@
 from pprint import pprint
 from gameUtils import GameUtils
 from ai import AI
-from moveGenerator import MoveGenerator
+from moveGenerator import generate_all_moves
 
 
 class Game:
 
     def __init__(self):
         self.state = [
-                        [0, 2, 0, 2, 0],
-                        [0, 0, 1, 0, 0],
+                        [0, 0, 0, 2, 0],
+                        [0, 0, 1, 1, 0],
                         [0, 0, 0, 0, 0],
-                        [0, 0, 2, 0, 0],
-                        [0, 1, 0, 1, 0]
+                        [1, 2, 2, 0, 0],
+                        [0, 0, 0, 0, 0]
                     ]
 
         self.played_states = {}

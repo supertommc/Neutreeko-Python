@@ -1,4 +1,4 @@
-from moveGenerator import MoveGenerator
+from moveGenerator import generate_all_moves
 from gameUtils import GameUtils
 from ai import AI
 from boardmenu import BoardMenu
@@ -374,7 +374,7 @@ class Board:
 
     def __move_is_valid(self):
         move = self.__move.get_coords()
-        valid_moves = MoveGenerator.generate_all_moves(self.__game_state, self.__player_turn)
+        valid_moves = generate_all_moves(self.__game_state, self.__player_turn)
 
         return move in valid_moves
 
