@@ -19,11 +19,17 @@ class SlideResponse:
 
 
 class RematchResponse:
-    def __init__(self, board):
-        self.__board = board
 
-    def on_press(self):
-        self.__board.reset()
+    @staticmethod
+    def on_press():
+        app.neutreeko.get_board().reset()
+
+
+class RestartResponse:
+
+    @staticmethod
+    def on_press():
+        app.neutreeko.get_board().reset()
 
 
 class LeaveResponse:
@@ -36,8 +42,37 @@ class LeaveResponse:
 
 
 class ResignResponse:
-    def __init__(self, board):
-        self.__board = board
+    def __init__(self, player):
+        self.__player = player
 
     def on_press(self):
-        self.__board.set
+        app.neutreeko.get_board().resign_player(self.__player)
+
+
+class OfferDrawResponse:
+    def __init__(self, player):
+        self.__player = player
+
+    def on_press(self):
+        app.neutreeko.get_board().offer_draw_player(self.__player)
+
+
+class CancelDrawResponse:
+
+    @staticmethod
+    def on_press():
+        app.neutreeko.get_board().cancel_draw()
+
+
+class AcceptDrawResponse:
+
+    @staticmethod
+    def on_press():
+        app.neutreeko.get_board().accept_draw()
+
+
+class HintResponse:
+
+    @staticmethod
+    def on_press():
+        app.neutreeko.generate_hint()

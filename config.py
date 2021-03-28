@@ -2,7 +2,7 @@ from p5 import create_font
 
 
 class Config:
-    SCREEN_WIDTH = 800
+    SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 700
     BACKGROUND_COLOR = (204, 204, 204)
     BLACK_PIECES_COLOR = (0, 0, 0)
@@ -33,19 +33,13 @@ class State:
     PLAYER_VS_BOT = 2
     BOT_VS_PLAYER = 3
     BOT_VS_BOT = 4
-    GAME_OVER = 5
-
-
-class BoardMenuState:
-    PLAYER_TURN_MENU = 0
-    GAME_OVER_WINNER_MENU = 1
-    GAME_OVER_DRAW_MENU = 2
 
 
 class BoardState:
     PLAYER_TURN = 0
-    GAME_OVER_WINNER_1 = 1
-    GAME_OVER_WINNER_2 = 2
-    GAME_OVER_DRAW = 3
-    PIECE_MOVING = 4
-    BOT_PROCESSING = 5
+    OFFER_DRAW = 1
+    OPPONENT_OFFER_DRAW = 2
+    WIN = 3
+    LOSE = 4
+    DRAW = 5
+    WAIT = 6

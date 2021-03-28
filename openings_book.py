@@ -125,7 +125,6 @@ class OpeningsTree:
             res = self.consume_res_list_item()
             if res != 5:
                 if node.depth % 2 == 0:
-                    print("Node depth: " + str(node.depth))
                     node.winner = 2
                 else:
                     node.winner = 1
