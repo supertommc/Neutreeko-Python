@@ -1,18 +1,22 @@
+
 class GameUtils:
 
+    # Checks if a coordinate (x or y) is valid (inside the board).
     @staticmethod
     def valid_coord(coord):
         return coord >= 0 and coord < 5
 
+    # Checks if a pair of coordinates (x, y) is valid
     @staticmethod
     def valid_coords(x, y):
         return GameUtils.valid_coord(x) and GameUtils.valid_coord(y)
 
+    # Checks if two moves are different
     @staticmethod
     def different_move(x, y, new_x, new_y):
         return not (x == new_x and y == new_y)
 
-    # Piece is 1 for black and 2 for white
+    # Converts the game position for one of the players into an integer (encodes the player's pieces into bits in an integer)
     @staticmethod
     def game_to_int(game, piece):
         game_int = 0
@@ -22,16 +26,17 @@ class GameUtils:
                     game_int = game_int | (1 << 5*y+x)
         return game_int
 
-    # Piece is 1 for black and 2 for white
+    # Converts the game into a tuple containing two integers, one with the position of the player 1's pieces and the other with player 2
     @staticmethod
     def full_game_to_tuple(game):
         return GameUtils.game_to_int(game, 1), GameUtils.game_to_int(game, 2)
 
-
+    # Given a player's piece (1 or 2), returns the other
     @staticmethod
     def get_other_piece(piece):
         return 3-piece
 
+    # Returns the bits of an integer that are set to one
     @staticmethod
     def get_ones_positions(game_int):
         i = 1
@@ -45,6 +50,7 @@ class GameUtils:
         
         return positions
 
+    # Checks if the game is over
     @staticmethod
     def check_game_over_full(game):
         if GameUtils.check_game_over(game, 1):
@@ -54,6 +60,10 @@ class GameUtils:
         else:
             return 0
 
+
+    # Checks if the game is over for one player
+    # Based on the following stack overflow thread
+    # https://stackoverflow.com/questions/21336869/optimizing-finding-an-endgame
     @staticmethod
     def check_game_over(game, piece):
         game_int = GameUtils.game_to_int(game, piece)
@@ -73,6 +83,7 @@ class GameUtils:
 
         return res != 0
 
+    # Makes a move on the board
     @staticmethod
     def make_move(game, move):
         x, y, new_x, new_y = move
@@ -86,6 +97,7 @@ class GameUtils:
 
         return True
 
+    # Unmakes a move on the board
     @staticmethod
     def unmake_move(game, move):
         x, y, new_x, new_y = move
