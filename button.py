@@ -1,7 +1,15 @@
 import config
 
 
+"""
+    Here are all the buttons classes used in the menus
+"""
+
+
 class Button:
+    """
+        This is the base and simple button that only execute its response when it is pressed
+    """
 
     def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, new_text,
                  new_text_size, response):
@@ -63,6 +71,9 @@ class Button:
 
 
 class SlideButton(Button):
+    """
+        This is a more sophisticated button that has a slide bar to choose a number in the values list
+    """
 
     def __init__(self, position, width, height, new_color, background_color, new_bar_color, pressed_color_offset,
                  prefix, new_text_size, values, response):
@@ -147,6 +158,10 @@ class SlideButton(Button):
 
 
 class ToggleButton(Button):
+    """
+        This is a more sophisticated button that when you press it, it change the current value to the next in the
+        values list
+    """
 
     def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, prefix, new_text_size, values, response):
         Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "", new_text_size, response)

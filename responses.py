@@ -3,6 +3,11 @@ from config import State
 from threading import Thread
 
 
+"""
+    Here are all responses used on buttons in menus and in board
+"""
+
+
 class ChangeStateResponse:
     def __init__(self, next_state):
         self.__next_state = next_state

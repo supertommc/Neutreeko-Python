@@ -4,7 +4,14 @@ import responses
 
 
 class BoardMenu:
+    """
+        Menu that appear at the right of the board
 
+        Buttons:
+            -> [HINT] - bot help to give the best move to player
+            -> [Restart] - Restart the game
+            -> [Leave] - Leave game and go to main menu
+    """
     def __init__(self, position, width, height):
         self.__x, self.__y = position
         self.__width = width
@@ -71,5 +78,10 @@ class BoardMenu:
         return self.__buttons_list
 
     def press(self, mx, my):
-        for but in self.__buttons_list:
-            but.press(mx, my)
+        """ Process the press mouse event
+
+        :param mx: x coord of mouse
+        :param my: y coord of mouse
+        """
+        for current_button in self.__buttons_list:
+            current_button.press(mx, my)

@@ -1,12 +1,5 @@
 from gameUtils import GameUtils
-<<<<<<< HEAD
-from moveGenerator import generate_all_moves
-from timeit import default_timer as timer
-import random
-=======
 from moveGenerator import MoveGenerator
-
->>>>>>> 550155f4e2a80c310cd2142732a9a3de545731ed
 
 # AI Class
 # Represents the ai agent

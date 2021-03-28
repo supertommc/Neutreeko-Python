@@ -1,11 +1,15 @@
 import config
 import menu
 import board
-import threading
+from threading import Thread
 from openings_book import OpeningsBook
 
 
 class Neutreeko:
+    """
+        Main Model Application Class
+        This class has everything used in the application, including the main and options menus and the game board
+    """
 
     def __init__(self):
         self.__state = config.State.MAIN_MENU
@@ -23,6 +27,7 @@ class Neutreeko:
 
         self.__opening_book = OpeningsBook()
         self.__opening_book.loadOpenings("openings.txt")
+        self.__use_opening_book = True
 
         self.__main_menu = menu.MainMenu()
         self.__options_menu = menu.OptionsMenu()
@@ -67,6 +72,11 @@ class Neutreeko:
         self.__game_board.generate_hint(self.__depth_hint)
 
     def process_press(self, mx, my):
+        """ Process mouse press event for each application element
+
+        :param mx: x coord of mouse
+        :param my: y coord of mouse
+        """
 
         if self.__state == config.State.MAIN_MENU:
             self.__main_menu.press(mx, my)
@@ -84,19 +94,26 @@ class Neutreeko:
             self.__game_board.press(mx, my)
 
     def process_release(self):
+        """ Process mouse release event for each application element
+        """
         if self.__state == config.State.MAIN_MENU:
             self.__main_menu.release()
         elif self.__state == config.State.OPTIONS_MENU:
             self.__options_menu.release()
 
     def process_drag(self, mx):
+        """ Process mouse drag event for each application element
+
+        :param mx: x coord of mouse
+        """
         if self.__state == config.State.MAIN_MENU:
             self.__main_menu.drag(mx)
         elif self.__state == config.State.OPTIONS_MENU:
             self.__options_menu.drag(mx)
 
     def update(self):
-        # print("Computer processing: {}".format(self.__game_board.is_computer_processing()))
+        """ Update application animations, verify if the game ends and apply bots moves
+        """
         if self.__game_board.is_game_over() or self.__game_board.is_computer_processing():
             return
 
@@ -113,15 +130,17 @@ class Neutreeko:
         else:
             if self.__game_board.get_player_turn() == 1:
                 if (self.__state == config.State.BOT_VS_PLAYER) or (self.__state == config.State.BOT_VS_BOT):
-                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, self.__opening_book))
-                    move_thread.start()
-                    # self.__game_board.apply_bot_move(self.__depth_bot_1, self.__opening_book)
+                    if self.__use_opening_book:
+                        Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, self.__opening_book)).start()
+                    else:
+                        Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, None)).start()
 
             elif self.__game_board.get_player_turn() == 2:
                 if (self.__state == config.State.PLAYER_VS_BOT) or (self.__state == config.State.BOT_VS_BOT):
-                    move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book))
-                    move_thread.start()
-                    # self.__game_board.apply_bot_move(self.__depth_bot_2, self.__opening_book)
+                    if self.__use_opening_book:
+                        Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book)).start()
+                    else:
+                        Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, None)).start()
 
         self.__game_board.check_game_over()
 

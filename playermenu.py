@@ -4,6 +4,18 @@ import responses
 
 
 class PlayerMenu:
+    """
+        Menu that appear in the bottom of the board (player 1) or in the to of the board (player 2)
+
+        Buttons that appear when is player turn:
+            -> [Resign] [Offer Draw]
+        Buttons that appear when a player offer a draw
+            -> Player that offered a draw: [Resign] [Cancel Draw]
+            -> Opponent player: [Accept Draw] [Decline Draw]
+
+        Texts that appear depending on board states:
+            -> YOUR TURN ; YOU WIN ; YOU LOSE ; DRAW
+    """
     def __init__(self, player, position):
         self.__player = player
         self.__x, self.__y = position
@@ -134,6 +146,11 @@ class PlayerMenu:
         self.__text_x = self.__x + 250 - text_width / 2
 
     def update(self, state):
+        """ Update the player menu depending on the board state
+
+        :param state: Board state
+        :return:
+        """
         self.__current_buttons_list.clear()
 
         if state == config.BoardState.WAIT:
@@ -175,5 +192,10 @@ class PlayerMenu:
             print("Invalid state!")
 
     def press(self, mx, my):
+        """ Process the press mouse event
+
+        :param mx: x coord of mouse
+        :param my: y coord of mouse
+        """
         for current_button in self.__current_buttons_list:
             current_button.press(mx, my)

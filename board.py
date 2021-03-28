@@ -6,6 +6,11 @@ from playermenu import PlayerMenu
 from boardmenu import BoardMenu
 
 
+"""
+    Here are all object classes used in the board except board menu and players menus
+"""
+
+
 class Piece:
 
     def __init__(self, position, radius, player, color):
@@ -150,6 +155,8 @@ class Move:
         return self.__dest_tile is not None
 
     def __update_direction(self):
+        """ Update move direction vector
+        """
         x = 0
         y = 0
         start_x, start_y, dest_x, dest_y = self.get_coords()
@@ -163,12 +170,16 @@ class Move:
         self.__direction = (x, y)
 
     def update_piece_position(self):
+        """ Update piece position depending on the move direction and move speed
+        """
         piece_x, piece_y = self.__piece.get_position()
         direction_x, direction_y = self.__direction
 
         self.__piece.set_position((piece_x + direction_x * self.__move_speed, piece_y + direction_y * self.__move_speed))
 
     def piece_reach_dest_position(self):
+        """ Verify if piece reach its destiny position
+        """
         piece_x, piece_y = self.__piece.get_position()
         dest_x, dest_y = self.__dest_tile.get_piece_position()
         direction_x, direction_y = self.__direction
@@ -184,14 +195,20 @@ class Move:
         return self.__piece is not None
 
     def start(self):
+        """ Start piece move
+        """
         self.__piece = self.__start_tile.extract_piece()
         self.__update_direction()
 
     def finish(self):
+        """ Finish piece move
+        """
         self.__dest_tile.insert_piece(self.__piece)
         self.reset()
 
     def reset(self):
+        """ Reset Move
+        """
         self.__piece = None
         self.__start_tile = None
         self.__dest_tile = None
@@ -227,6 +244,12 @@ class ScoreBar:
         return self.__y + self.__height - self.__current_bar_height
 
     def update(self, player, score):
+        """ Update bar based on player score
+
+        :param player:
+        :param score:
+        :return:
+        """
         ratio = -1
         if player == 1:
             if score >= AI.WIN_SCORE:
@@ -327,6 +350,8 @@ class Board:
         self.__hint = None
 
     def __create_tiles(self):
+        """ Create board tiles
+        """
         for row in range(5):
             for col in range(5):
                 tile = Tile((col, row), self.__get_tile_position(col, row), self.__edge // 5, self.__tiles_color)
@@ -336,6 +361,8 @@ class Board:
         return self.__x * (col + 1), self.__y * (row + 1)
 
     def __insert_pieces_from_state(self):
+        """ Insert piece in board tiles
+        """
         i = 0
         for row in range(len(self.__game_state)):
             for col in range(len(self.__game_state[0])):
@@ -409,12 +436,16 @@ class Board:
         self.__opening_book_active = is_active
 
     def __update_game_state(self):
+        """ Create the state matrix filled with zeros and update the state matrix based on the tiles pieces
+        """
         self.__game_state = [[0] * 5 for _ in range(5)]
 
         for tile in self.__tiles:
             self.__game_state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
 
     def __change_turn(self):
+        """ Change player turn, updating the states of players menu
+        """
         if self.__player_turn == 1:
             self.__player_turn = 2
             self.__player_1_menu.update(config.BoardState.WAIT)
@@ -426,7 +457,9 @@ class Board:
             self.__player_2_menu.update(config.BoardState.WAIT)
 
     def finish_piece_move(self):
-        self.__store_current_position()
+        """ Finish piece move and call methods related to it
+        """
+        self.__store_played_states()
         self.__store_move(self.__move.get_coords())
         self.__move.finish()
         self.__change_turn()
@@ -434,6 +467,11 @@ class Board:
         self.__hint = None
 
     def __apply_move(self, move):
+        """ Apply move based on the current game state and start move animation
+
+        :param move:
+        :return:
+        """
         initial_x, initial_y, final_x, final_y = move
 
         for tile in self.__tiles:
@@ -446,18 +484,30 @@ class Board:
         self.__move.start()
 
     def __move_is_valid(self):
+        """ Verify if the move is valid
+
+        :return: True if move is in list of valid moves, else return False
+        """
         move = self.__move.get_coords()
         valid_moves = generate_all_moves(self.__game_state, self.__player_turn)
 
         return move in valid_moves
 
     def __is_draw(self):
+        """ Verify if the game end with a draw
+
+        :return: True if it was a draw, else return False
+        """
         for val in self.__played_states.values():
             if val == 3:
                 return True
         return False
 
     def check_game_over(self):
+        """ Verify if the game ended, updating the board view based on the board state
+
+        :return:
+        """
         if self.__is_draw() or self.__draw_accepted:
             self.__player_1_menu.update(config.BoardState.DRAW)
             self.__player_2_menu.update(config.BoardState.DRAW)
@@ -476,6 +526,11 @@ class Board:
             self.__game_over = True
 
     def offer_draw_player(self, player):
+        """ Player offer a draw to the opponent
+
+        :param player: Player that offered a draw
+        :return:
+        """
 
         if player == 1:
             self.__player_1_menu.update(config.BoardState.OFFER_DRAW)
@@ -486,6 +541,8 @@ class Board:
             self.__player_2_menu.update(config.BoardState.OFFER_DRAW)
 
     def cancel_draw(self):
+        """ The draw offer is canceled
+        """
         if self.__player_turn == 1:
             self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
             self.__player_2_menu.update(config.BoardState.WAIT)
@@ -493,7 +550,10 @@ class Board:
             self.__player_1_menu.update(config.BoardState.WAIT)
             self.__player_2_menu.update(config.BoardState.PLAYER_TURN)
 
-    def __store_current_position(self):
+    def __store_played_states(self):
+        """ Store every position in a dictionary, which the key is the position and the value is the number of times
+        that the position occurs
+        """
         item = GameUtils.full_game_to_tuple(self.__game_state)
         if item in self.__played_states.keys():
             self.__played_states[item] += 1
@@ -511,6 +571,11 @@ class Board:
         self.__move.finish()
 
     def generate_bot_move(self, depth):
+        """ Generate the bot move using one function to get the best move
+
+        :param depth: depth of the bot
+        :return: move and move score
+        """
         if self.__player_turn == 1:
             score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
         else:
@@ -518,6 +583,10 @@ class Board:
         return score, move
 
     def generate_hint(self, hint_depth):
+        """ Generate the Hint object to display the best move whenever the player want
+
+        :param hint_depth: depth of the hint
+        """
         self.__computer_processing = True
         _, move = self.generate_bot_move(hint_depth)
         self.__computer_processing = False
@@ -536,9 +605,15 @@ class Board:
         self.__hint = Hint(start_position, dest_position)
 
     def apply_bot_move(self, depth, opening_book):
+        """ Apply the bot move, based on the bot depth and if it uses the opening book
+
+        :param depth: depth of the bot
+        :param opening_book: book which has stored all theoretical opening moves
+        """
         self.__computer_processing = True
 
-        # opening_book.find_next_move()
+        if opening_book is not None:
+            opening_book.find_next_move()
 
         # score, move = self.generate_bot_move(depth)
         if self.__player_turn == 1:
@@ -553,6 +628,8 @@ class Board:
         self.__state = config.BoardState.PLAYER_TURN
 
     def reset(self):
+        """ Reset board to its beginning state
+        """
         self.__game_state = self.__initial_game_state
         self.__player_1_resign = False
         self.__player_2_resign = False
@@ -573,6 +650,13 @@ class Board:
         self.__hint = None
 
     def press(self, mx, my):
+        """ Process mouse event when the mouse is pressed over the board
+        The user can select the tiles to the move using mouse presses of the specifics tiles and also the user can
+        press the board menus buttons for example to offer draw, resign, leave, restart game or get a hint
+
+        :param mx: x coord of mouse
+        :param my: y coord of mouse
+        """
 
         self.__board_menu.press(mx, my)
         self.__player_1_menu.press(mx, my)
