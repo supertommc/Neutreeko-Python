@@ -30,7 +30,7 @@ class PlayerMenu:
 
         self.__leave_button = None
         self.__leave_button_text = "Leave"
-        self.__leave_button_response = responses.ChangeStateResponse(config.State.MENU)
+        self.__leave_button_response = responses.ChangeStateResponse(config.State.MAIN_MENU)
 
         self.__resign_button = None
         self.__resign_button_text = "Resign"

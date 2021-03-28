@@ -45,22 +45,37 @@ class SlideButtonView:
         text(button.get_text(), button.get_text_x(), button.get_text_y())
 
 
-class MenuView:
+class MainMenuView:
     @staticmethod
-    def display(menu):
+    def display(main_menu):
 
         # display title
-        text_size(menu.get_title_font_size())
-        fill(menu.get_title_color()[0], menu.get_title_color()[1], menu.get_title_color()[2])
-        text(menu.get_title_text(), menu.get_title_x(), menu.get_title_y())
+        text_size(main_menu.get_title_font_size())
+        fill(main_menu.get_title_color()[0], main_menu.get_title_color()[1], main_menu.get_title_color()[2])
+        text(main_menu.get_title_text(), main_menu.get_title_x(), main_menu.get_title_y())
 
         # display buttons
-        ButtonView.display(menu.get_player_vs_player_button())
-        ButtonView.display(menu.get_player_vs_bot_button())
-        ButtonView.display(menu.get_bot_vs_player_button())
-        ButtonView.display(menu.get_bot_vs_bot_button())
-        SlideButtonView.display(menu.get_depth_slide_button_bot_1())
-        SlideButtonView.display(menu.get_depth_slide_button_bot_2())
+        ButtonView.display(main_menu.get_player_vs_player_button())
+        ButtonView.display(main_menu.get_player_vs_bot_button())
+        ButtonView.display(main_menu.get_bot_vs_player_button())
+        ButtonView.display(main_menu.get_bot_vs_bot_button())
+        ButtonView.display(main_menu.get_options_button())
+
+
+class OptionsMenuView:
+    @staticmethod
+    def display(options_menu):
+        # display title
+        text_size(options_menu.get_title_font_size())
+        fill(options_menu.get_title_color()[0], options_menu.get_title_color()[1], options_menu.get_title_color()[2])
+        text(options_menu.get_title_text(), options_menu.get_title_x(), options_menu.get_title_y())
+
+        # display buttons
+        for i in range(3):
+            SlideButtonView.display(options_menu.get_depth_slide_button(i))
+            ButtonView.display(options_menu.get_evaluation_toggle_button(i))
+        ButtonView.display(options_menu.get_opening_book_toggle_button())
+        ButtonView.display(options_menu.get_back_button())
 
 
 class PieceView:
@@ -177,8 +192,11 @@ def draw():
 
     neutreeko.update()
 
-    if neutreeko.get_state() == State.MENU:
-        MenuView.display(neutreeko.get_menu())
+    if neutreeko.get_state() == State.MAIN_MENU:
+        MainMenuView.display(neutreeko.get_main_menu())
+
+    elif neutreeko.get_state() == State.OPTIONS_MENU:
+        OptionsMenuView.display(neutreeko.get_options_menu())
 
     else:
         BoardView.display(neutreeko.get_board())

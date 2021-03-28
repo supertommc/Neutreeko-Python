@@ -1,5 +1,6 @@
 import app
 from config import State
+from threading import Thread
 
 
 class ChangeStateResponse:
@@ -38,7 +39,7 @@ class LeaveResponse:
 
     def on_press(self):
         self.__board.reset()
-        app.neutreeko.set_state(State.MENU)
+        app.neutreeko.set_state(State.MAIN_MENU)
 
 
 class ResignResponse:
@@ -75,4 +76,26 @@ class HintResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.generate_hint()
+        thread = Thread(target=app.neutreeko.generate_hint)
+        thread.start()
+
+
+class EvaluationToggleResponse:
+    def __init__(self, bot):
+        self.__bot = bot
+
+    @staticmethod
+    def on_press():
+        # TODO: Implement this
+        pass
+
+
+class OpeningBookToggleResponse:
+
+    @staticmethod
+    def on_press():
+        # TODO: Implement this
+        pass
+
+
+

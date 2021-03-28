@@ -28,11 +28,12 @@ class Config:
 
 
 class State:
-    MENU = 0
-    PLAYER_VS_PLAYER = 1
-    PLAYER_VS_BOT = 2
-    BOT_VS_PLAYER = 3
-    BOT_VS_BOT = 4
+    MAIN_MENU = 0
+    OPTIONS_MENU = 1
+    PLAYER_VS_PLAYER = 2
+    PLAYER_VS_BOT = 3
+    BOT_VS_PLAYER = 4
+    BOT_VS_BOT = 5
 
 
 class BoardState:

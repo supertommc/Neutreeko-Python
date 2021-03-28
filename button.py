@@ -90,8 +90,6 @@ class SlideButton(Button):
         return self.__bar_height
 
     def get_bar_x(self):
-        # bar_ratio = self.__current_value_index / len(self.__values)
-        # return self._x + self._width * bar_ratio
         return self.__bar_x
 
     def get_bar_y(self):
@@ -146,3 +144,32 @@ class SlideButton(Button):
         if self.__dragging:
             self.update(mx)
             self._response.on_drag(self)
+
+
+class ToggleButton(Button):
+
+    def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, prefix, new_text_size, values, response):
+        Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "", new_text_size, response)
+
+        self.__prefix = prefix
+        self.__values = values
+        self.__number_values = len(values)
+
+        self.__current_value_index = 0
+        self._text = self.__prefix + str(self.__values[self.__current_value_index])
+        self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), new_text_size)
+
+    def get_current_value(self):
+        return self.__values[self.__current_value_index]
+
+    def update_text(self):
+        self._text = self.__prefix + str(self.__values[self.__current_value_index])
+        self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), self._text_size)
+
+    def update(self):
+        self.__current_value_index = (self.__current_value_index + 1) % self.__number_values
+        self.update_text()
+
+    def press(self, mx, my):
+        if self.is_hover(mx, my):
+            self.update()

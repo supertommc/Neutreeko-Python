@@ -303,7 +303,7 @@ class Board:
         self.__draw_accepted = False
         self.__game_over = False
 
-        self.__bot_move_processing = False
+        self.__computer_processing = False
         self.__opening_book_active = False
 
         self.__score_bar_x = self.__x + self.__edge + 50
@@ -383,8 +383,8 @@ class Board:
     def get_hint(self):
         return self.__hint
 
-    def is_bot_move_processing(self):
-        return self.__bot_move_processing
+    def is_computer_processing(self):
+        return self.__computer_processing
 
     def is_opening_book_active(self):
         return self.__opening_book_active
@@ -515,10 +515,13 @@ class Board:
             score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
         else:
             score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
-        return move
+        return score, move
 
     def generate_hint(self, hint_depth):
-        start_x, start_y, dest_x, dest_y = self.generate_bot_move(hint_depth)
+        self.__computer_processing = True
+        _, move = self.generate_bot_move(hint_depth)
+        self.__computer_processing = False
+        start_x, start_y, dest_x, dest_y = move
 
         start_position = None
         dest_position = None
@@ -533,23 +536,20 @@ class Board:
         self.__hint = Hint(start_position, dest_position)
 
     def apply_bot_move(self, depth, opening_book):
-        self.__bot_move_processing = True
+        self.__computer_processing = True
 
         # opening_book.find_next_move()
 
+        # score, move = self.generate_bot_move(depth)
         if self.__player_turn == 1:
-            assert(self.__player_turn == 1)
-            assert(self.__player_turn == self.__bot_1.piece)
             score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
         else:
-            assert (self.__player_turn == 2)
-            assert (self.__player_turn == self.__bot_2.piece)
             score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
 
         print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
         self.__score_bar.update(self.__player_turn, score)
         self.__apply_move(move)
-        self.__bot_move_processing = False
+        self.__computer_processing = False
         self.__state = config.BoardState.PLAYER_TURN
 
     def reset(self):

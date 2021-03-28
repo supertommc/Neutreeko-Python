@@ -8,7 +8,7 @@ from openings_book import OpeningsBook
 class Neutreeko:
 
     def __init__(self):
-        self.__state = config.State.MENU
+        self.__state = config.State.MAIN_MENU
         self.__player = 1
         self.__depth_bot_1 = 4
         self.__depth_bot_2 = 4
@@ -24,7 +24,8 @@ class Neutreeko:
         self.__opening_book = OpeningsBook()
         self.__opening_book.loadOpenings("openings.txt")
 
-        self.__game_menu = menu.Menu()
+        self.__main_menu = menu.MainMenu()
+        self.__options_menu = menu.OptionsMenu()
         self.__game_board = board.Board(self.__game_state)
 
     def get_state(self):
@@ -36,14 +37,14 @@ class Neutreeko:
     def get_game_state(self):
         return self.__game_state
 
-    def get_menu(self):
-        return self.__game_menu
+    def get_main_menu(self):
+        return self.__main_menu
+
+    def get_options_menu(self):
+        return self.__options_menu
 
     def get_board(self):
         return self.__game_board
-
-    def get_depth_hint(self):
-        return self.__depth_hint
 
     def set_state(self, new_state):
         self.__state = new_state
@@ -55,7 +56,9 @@ class Neutreeko:
         self.__game_state = new_game_state
 
     def set_depth_bot(self, bot, new_depth):
-        if bot == 1:
+        if bot == 0:
+            self.__depth_hint = new_depth
+        elif bot == 1:
             self.__depth_bot_1 = new_depth
         elif bot == 2:
             self.__depth_bot_2 = new_depth
@@ -65,8 +68,11 @@ class Neutreeko:
 
     def process_press(self, mx, my):
 
-        if self.__state == config.State.MENU:
-            self.__game_menu.press(mx, my)
+        if self.__state == config.State.MAIN_MENU:
+            self.__main_menu.press(mx, my)
+
+        elif self.__state == config.State.OPTIONS_MENU:
+            self.__options_menu.press(mx, my)
 
         elif self.__state == config.State.PLAYER_VS_PLAYER:
             self.__game_board.press(mx, my)
@@ -78,15 +84,20 @@ class Neutreeko:
             self.__game_board.press(mx, my)
 
     def process_release(self):
-        if self.__state == config.State.MENU:
-            self.__game_menu.release()
+        if self.__state == config.State.MAIN_MENU:
+            self.__main_menu.release()
+        elif self.__state == config.State.OPTIONS_MENU:
+            self.__options_menu.release()
 
     def process_drag(self, mx):
-        if self.__state == config.State.MENU:
-            self.__game_menu.drag(mx)
+        if self.__state == config.State.MAIN_MENU:
+            self.__main_menu.drag(mx)
+        elif self.__state == config.State.OPTIONS_MENU:
+            self.__options_menu.drag(mx)
 
     def update(self):
-        if self.__game_board.is_game_over() or self.__game_board.is_bot_move_processing():
+        # print("Computer processing: {}".format(self.__game_board.is_computer_processing()))
+        if self.__game_board.is_game_over() or self.__game_board.is_computer_processing():
             return
 
         move = self.__game_board.get_move()
@@ -104,11 +115,13 @@ class Neutreeko:
                 if (self.__state == config.State.BOT_VS_PLAYER) or (self.__state == config.State.BOT_VS_BOT):
                     move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, self.__opening_book))
                     move_thread.start()
+                    # self.__game_board.apply_bot_move(self.__depth_bot_1, self.__opening_book)
 
             elif self.__game_board.get_player_turn() == 2:
                 if (self.__state == config.State.PLAYER_VS_BOT) or (self.__state == config.State.BOT_VS_BOT):
                     move_thread = threading.Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book))
                     move_thread.start()
+                    # self.__game_board.apply_bot_move(self.__depth_bot_2, self.__opening_book)
 
         self.__game_board.check_game_over()
 
