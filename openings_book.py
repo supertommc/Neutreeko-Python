@@ -77,7 +77,7 @@ class OpeningsTree:
             for child in node.children:
                 if child.winner == piece:
                     return child.move
-                elif child.winner == 5 and candidate_move == 0:
+                elif child.winner == 5 and candidate_move is None:
                     candidate_move = child.move
             return candidate_move
         

@@ -4,6 +4,7 @@ from ai import AI
 import config
 from playermenu import PlayerMenu
 from boardmenu import BoardMenu
+from pprint import pprint
 
 
 """
@@ -333,7 +334,7 @@ class Board:
         self.__game_over = False
 
         self.__computer_processing = False
-        self.__opening_book_active = False
+        self.__opening_book_active = True
 
         self.__score_bar_x = self.__x + self.__edge + 50
         self.__score_bar_y = self.__y
@@ -447,6 +448,10 @@ class Board:
         self.__game_state = [[0] * 5 for _ in range(5)]
 
         for tile in self.__tiles:
+            if tile.get_piece() is not None:
+                print("Coords: {} ; Piece: {}".format(tile.get_coords(), tile.get_piece().get_player()))
+            else:
+                print("Coords: {} ; Piece: {}".format(tile.get_coords(), None))
             self.__game_state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
 
     def __change_turn(self):
@@ -521,12 +526,18 @@ class Board:
 
         :return:
         """
+
         if self.__is_draw() or self.__draw_accepted:
             self.__player_1_menu.update(config.BoardState.DRAW)
             self.__player_2_menu.update(config.BoardState.DRAW)
             self.__game_over = True
 
         result = GameUtils.check_game_over_full(self.__game_state)
+
+        print("Result: {}".format(result))
+        print("Player 1 resign: {}".format(self.__player_1_resign))
+        print("Player 2 resign: {}".format(self.__player_2_resign))
+        pprint(self.__game_state)
 
         if (result == 1) or self.__player_2_resign:
             self.__player_1_menu.update(config.BoardState.WIN)
@@ -610,31 +621,48 @@ class Board:
 
         self.__hint = Hint(start_position, dest_position)
 
-    def apply_bot_move(self, depth):
+    def apply_bot_move(self, depth, opening_book):
         """ Apply the bot move, based on the bot depth and if it uses the opening book
 
         :param depth: depth of the bot
         :param opening_book: book which has stored all theoretical opening moves
         """
-        self.__computer_processing = True
 
         move = None
+        score = None
 
-        if self.__opening_book is not None:
-            move = self.__opening_book.find_next_move(self.__played_moves, self.__player_turn)
+        if opening_book is None:
+            self.__opening_book_active = False
+
+        if self.__opening_book_active:
+            move = opening_book.find_next_move(self.__played_moves, self.__player_turn)
+            print("Opening move: {}".format(move))
             if move is None:
-                self.__opening_book = None
+                self.__opening_book_active = False
 
-        if move is None:
+            if self.__opening_book_active:
+                GameUtils.make_move(self.__game_state, move)
+
+                if self.__player_turn == 1:
+                    score = self.__bot_1.evaluate_position(1, self.__game_state, depth)
+
+                elif self.__player_turn == 2:
+                    score = self.__bot_1.evaluate_position(2, self.__game_state, depth)
+
+                GameUtils.unmake_move(self.__game_state, move)
+
+        if not self.__opening_book_active:
+            self.__computer_processing = True
             if self.__player_turn == 1:
                 score, move = self.__bot_1.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
             else:
                 score, move = self.__bot_2.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
             print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
-            self.__score_bar.update(self.__player_turn, score)
+            self.__computer_processing = False
 
+        self.__score_bar.update(self.__player_turn, score)
+        print("Move: {}".format(move))
         self.__apply_move(move)
-        self.__computer_processing = False
         self.__state = config.BoardState.PLAYER_TURN
 
     # def reset(self):

@@ -83,8 +83,10 @@ class HintResponse:
 
     @staticmethod
     def on_press():
+        app.neutreeko.join_hint_thread()
         thread = Thread(target=app.neutreeko.generate_hint)
         thread.start()
+        app.neutreeko.set_hint_thread(thread)
 
 
 class EvaluationToggleResponse:
@@ -92,7 +94,7 @@ class EvaluationToggleResponse:
         self.__bot = bot
 
     @staticmethod
-    def on_press():
+    def on_press(button):
         # TODO: Implement this
         pass
 
@@ -100,6 +102,10 @@ class EvaluationToggleResponse:
 class OpeningBookToggleResponse:
 
     @staticmethod
-    def on_press():
-        # TODO: Implement this
-        pass
+    def on_press(button):
+        if button.get_current_value() == "ON":
+            app.neutreeko.set_use_opening_book(True)
+        elif button.get_current_value() == "OFF":
+            app.neutreeko.set_use_opening_book(False)
+        else:
+            print("Invalid current value")

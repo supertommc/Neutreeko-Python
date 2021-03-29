@@ -154,12 +154,15 @@ class MainMenu(Menu):
 
 class OptionsMenu(Menu):
 
-    def __init__(self, initial_depth_hint, initial_depth_bot_1, initial_depth_bot_2):
+    def __init__(self, initial_use_opening_bool, initial_depth_hint_index, initial_depth_bot_1_index, initial_depth_bot_2_index, initial_evaluation_index):
         Menu.__init__(self, "OPTIONS")
 
-        self.__initial_depth_hint = initial_depth_hint
-        self.__initial_depth_bot_1 = initial_depth_bot_1
-        self.__initial_depth_bot_2 = initial_depth_bot_2
+        self.__initial_use_opening_bool = initial_use_opening_bool
+        self.__initial_depth_hint_index = initial_depth_hint_index
+        self.__initial_depth_bot_1_index = initial_depth_bot_1_index
+        self.__initial_depth_bot_2_index = initial_depth_bot_2_index
+        self.__use_opening_book_index = int(initial_use_opening_bool)
+        self.__initial_evaluation_index = initial_evaluation_index
 
         self.__depth_hint_slide_button = None
         self.__depth_hint_slide_button_prefix = "DEPTH HINT: "
@@ -216,7 +219,7 @@ class OptionsMenu(Menu):
                                                             self.__depth_hint_slide_button_prefix,
                                                             self._buttons_font_size,
                                                             self.__depth_hint_slide_button_values,
-                                                            self.__initial_depth_hint,
+                                                            self.__initial_depth_hint_index,
                                                             self.__depth_hint_slide_button_response)
         self._buttons_list.append(self.__depth_hint_slide_button)
         self._slide_buttons_list.append(self.__depth_hint_slide_button)
@@ -229,6 +232,7 @@ class OptionsMenu(Menu):
                                                                    self.__evaluation_hint_toggle_button_prefix,
                                                                    self._buttons_font_size,
                                                                    self.__evaluation_hint_toggle_button_values,
+                                                                   self.__initial_evaluation_index,
                                                                    self.__evaluation_hint_toggle_button_response)
         self._buttons_list.append(self.__evaluation_hint_toggle_button)
         button_y += self._buttons_height + self._buttons_vertical_offset
@@ -244,7 +248,7 @@ class OptionsMenu(Menu):
                                                              self.__depth_bot_1_slide_button_prefix,
                                                              self._buttons_font_size,
                                                              self.__depth_bot_1_slide_button_values,
-                                                             self.__initial_depth_bot_1,
+                                                             self.__initial_depth_bot_1_index,
                                                              self.__depth_bot_1_slide_button_response)
         self._buttons_list.append(self.__depth_bot_1_slide_button)
         self._slide_buttons_list.append(self.__depth_bot_1_slide_button)
@@ -257,6 +261,7 @@ class OptionsMenu(Menu):
                                                                     self.__evaluation_bot_1_toggle_button_prefix,
                                                                     self._buttons_font_size,
                                                                     self.__evaluation_bot_1_toggle_button_values,
+                                                                    self.__initial_evaluation_index,
                                                                     self.__evaluation_bot_1_toggle_button_response)
         self._buttons_list.append(self.__evaluation_bot_1_toggle_button)
         button_y += self._buttons_height + self._buttons_vertical_offset
@@ -272,7 +277,7 @@ class OptionsMenu(Menu):
                                                              self.__depth_bot_2_slide_button_prefix,
                                                              self._buttons_font_size,
                                                              self.__depth_bot_2_slide_button_values,
-                                                             self.__initial_depth_bot_2,
+                                                             self.__initial_depth_bot_2_index,
                                                              self.__depth_bot_2_slide_button_response)
         self._buttons_list.append(self.__depth_bot_2_slide_button)
         self._slide_buttons_list.append(self.__depth_bot_2_slide_button)
@@ -285,6 +290,7 @@ class OptionsMenu(Menu):
                                                                     self.__evaluation_bot_2_toggle_button_prefix,
                                                                     self._buttons_font_size,
                                                                     self.__evaluation_bot_2_toggle_button_values,
+                                                                    self.__initial_evaluation_index,
                                                                     self.__evaluation_bot_2_toggle_button_response)
         self._buttons_list.append(self.__evaluation_bot_2_toggle_button)
         button_y += self._buttons_height + self._buttons_vertical_offset
@@ -299,6 +305,7 @@ class OptionsMenu(Menu):
                                                                 self.__opening_book_toggle_button_prefix,
                                                                 self._buttons_font_size,
                                                                 self.__opening_book_toggle_button_values,
+                                                                self.__initial_use_opening_bool,
                                                                 self.__opening_book_toggle_button_response)
         self._buttons_list.append(self.__opening_book_toggle_button)
         button_y += self._buttons_height + self._buttons_vertical_offset

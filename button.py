@@ -168,14 +168,14 @@ class ToggleButton(Button):
         values list
     """
 
-    def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, prefix, new_text_size, values, response):
+    def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, prefix, new_text_size, values, initial_value_index, response):
         Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "", new_text_size, response)
 
         self.__prefix = prefix
         self.__values = values
         self.__number_values = len(values)
 
-        self.__current_value_index = 0
+        self.__current_value_index = initial_value_index
         self._text = self.__prefix + str(self.__values[self.__current_value_index])
         self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), new_text_size)
 
@@ -193,3 +193,4 @@ class ToggleButton(Button):
     def press(self, mx, my):
         if self.is_hover(mx, my):
             self.update()
+            self._response.on_press(self)
