@@ -1,12 +1,7 @@
 from gameUtils import GameUtils
-<<<<<<< HEAD
-from moveGenerator import generate_all_moves
 from timeit import default_timer as timer
 import random
-=======
 from moveGenerator import MoveGenerator
-
->>>>>>> 550155f4e2a80c310cd2142732a9a3de545731ed
 
 # AI Class
 # Represents the ai agent
@@ -93,35 +88,34 @@ class AI:
                     val -= self.rel_scores[i][j]
         return val
 
+    def evaluate_position_center(self, game):
+        for i in range(len(game)):
+            for j in range(len(game[0])):
+                if game[i][j] == self.piece:
+                    val += self.rel_scores[i][j]
+                elif game[i][j] == self.other_piece:
+                    val -= self.rel_scores[i][j]
+        return val
+
+    def evaluate_position_random(self, game):
+        return 0 + random.randint(AI.MIN_SCORE_NOT_LOSE, AI.MAX_SCORE_NOT_WIN)
+
     # Evaluates a board position
-    def evaluate_position(self, piece, game, depth):
+    def evaluate_position(self, piece, game, depth, eval_func):
 
         if GameUtils.check_game_over(game, self.piece):
             return AI.WIN_SCORE + depth
         elif GameUtils.check_game_over(game, self.other_piece):
             return AI.LOSE_SCORE - depth
         else:
-            #return 0
-            #return self.check_all_neighbours(game)
-            return self.evaluate_position_all_combined(game)
-            #return 0 + random.randint(AI.MIN_SCORE_NOT_LOSE, AI.MAX_SCORE_NOT_WIN)
-            """
-            val = 0
-            for i in range(len(game)):
-                for j in range(len(game[0])):
-                    if game[i][j] == self.piece:
-                        val += self.rel_scores[i][j]
-                    elif game[i][j] == self.other_piece:
-                        val -= self.rel_scores[i][j]
-            return val
-            """
+            return eval_func(game)
             
     # Applies the minimax algorithm to the given game state with a certain depth. Returns the move with the best score (calculated by the minimax)
-    def minimax_with_move(self, is_max, current_player, game, depth):
+    def minimax_with_move(self, is_max, current_player, game, depth, eval_func):
 
         self.num_calls += 1
 
-        res = self.evaluate_position(current_player, game, depth)
+        res = self.evaluate_position(current_player, game, depth, eval_func)
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
 
@@ -131,7 +125,7 @@ class AI:
         for move in moves:
             GameUtils.make_move(game, move)
 
-            score = self.minimax_with_move(not is_max, GameUtils.get_other_piece(current_player), game, depth-1)[0]
+            score = self.minimax_with_move(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, eval_func)[0]
 
             pos_scores.append((score, move))
 
@@ -143,11 +137,11 @@ class AI:
             return min(pos_scores, key=lambda x: x[0])
 
     # Applies the minimax algorithm to the given game state with a certain depth. Returns the move with the best score (calculated by the minimax)
-    def minimax_alpha_beta_with_move_faster(self, is_max, current_player, game, depth, alpha, beta):
+    def minimax_alpha_beta_with_move_faster(self, is_max, current_player, game, depth, alpha, beta, eval_func):
 
         self.num_calls += 1
 
-        res = self.evaluate_position(current_player, game, depth)
+        res = self.evaluate_position(current_player, game, depth, eval_func)
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
         
@@ -160,7 +154,7 @@ class AI:
                 
                 GameUtils.make_move(game, move)
 
-                mini_or_max = self.minimax_alpha_beta_with_move_faster(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta)
+                mini_or_max = self.minimax_alpha_beta_with_move_faster(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta, eval_func)
                 if mini_or_max[0] > score:
                     score = mini_or_max[0]
                     current_move = move
@@ -178,7 +172,7 @@ class AI:
             for move in moves:
                 GameUtils.make_move(game, move)
 
-                mini_or_max = self.minimax_alpha_beta_with_move_faster(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta)
+                mini_or_max = self.minimax_alpha_beta_with_move_faster(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta, eval_func)
                 if mini_or_max[0] < score:
                     score = mini_or_max[0]
                     current_move = move
@@ -192,12 +186,12 @@ class AI:
             return score, current_move
 
     # Generates all possible moves for a certain player and sorts them based on the resulting position's evaluation
-    def generate_all_moves_sort(self, game, current_player, depth, is_max):
+    def generate_all_moves_sort(self, game, current_player, depth, is_max, eval_func):
         moves = MoveGenerator.generate_all_moves(game, current_player)
         moves_with_score = []
         for move in moves:
             GameUtils.make_move(game, move)
-            moves_with_score.append((move, self.evaluate_position(current_player, game, depth)))
+            moves_with_score.append((move, self.evaluate_position(current_player, game, depth, eval_func)))
             GameUtils.unmake_move(game, move)
         
         if is_max:
@@ -207,15 +201,15 @@ class AI:
 
 
     # Applies the minimax algorithm to the given game state with a certain depth, but sorts the possible moves before analysing their respective nodes. Returns the move with the best score (calculated by the minimax)
-    def minimax_alpha_beta_with_move_faster_order(self, is_max, current_player, game, depth, alpha, beta):
+    def minimax_alpha_beta_with_move_faster_order(self, is_max, current_player, game, depth, alpha, beta, eval_func):
 
         self.num_calls += 1
 
-        res = self.evaluate_position(current_player, game, depth)
+        res = self.evaluate_position(current_player, game, depth, eval_func)
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
         
-        moves = self.generate_all_moves_sort(game, current_player, depth, is_max)
+        moves = self.generate_all_moves_sort(game, current_player, depth, is_max, eval_func)
 
         if is_max:
             score = self.MIN
@@ -224,7 +218,7 @@ class AI:
                 
                 GameUtils.make_move(game, move)
 
-                mini_or_max = self.minimax_alpha_beta_with_move_faster(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta)
+                mini_or_max = self.minimax_alpha_beta_with_move_faster_order(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta, eval_func)
                 if mini_or_max[0] > score:
                     score = mini_or_max[0]
                     current_move = move
@@ -242,7 +236,7 @@ class AI:
             for move in moves:
                 GameUtils.make_move(game, move)
 
-                mini_or_max = self.minimax_alpha_beta_with_move_faster(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta)
+                mini_or_max = self.minimax_alpha_beta_with_move_faster_order(not is_max, GameUtils.get_other_piece(current_player), game, depth-1, alpha, beta, eval_func)
                 if mini_or_max[0] < score:
                     score = mini_or_max[0]
                     current_move = move
