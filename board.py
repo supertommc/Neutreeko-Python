@@ -1,4 +1,4 @@
-from moveGenerator import generate_all_moves
+from moveGenerator import MoveGenerator
 from gameUtils import GameUtils
 from ai import AI
 import config
@@ -507,7 +507,7 @@ class Board:
         :return: True if move is in list of valid moves, else return False
         """
         move = self.__move.get_coords()
-        valid_moves = generate_all_moves(self.__game_state, self.__player_turn)
+        valid_moves = MoveGenerator.generate_all_moves(self.__game_state, self.__player_turn)
 
         return move in valid_moves
 
@@ -644,19 +644,19 @@ class Board:
                 GameUtils.make_move(self.__game_state, move)
 
                 if self.__player_turn == 1:
-                    score = self.__bot_1.evaluate_position(1, self.__game_state, depth)
+                    score = self.__bot_1.evaluate_position(1, self.__game_state, depth, self.__bot_1.evaluate_position_all_combined)
 
                 elif self.__player_turn == 2:
-                    score = self.__bot_1.evaluate_position(2, self.__game_state, depth)
+                    score = self.__bot_1.evaluate_position(2, self.__game_state, depth, self.__bot_1.evaluate_position_all_combined)
 
                 GameUtils.unmake_move(self.__game_state, move)
 
         if not self.__opening_book_active:
             self.__computer_processing = True
             if self.__player_turn == 1:
-                score, move = self.__bot_1.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+                score, move = self.__bot_1.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX, self.__bot_1.evaluate_position_all_combined)
             else:
-                score, move = self.__bot_2.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+                score, move = self.__bot_2.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX, self.__bot_1.evaluate_position_all_combined)
             print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
             self.__computer_processing = False
 
