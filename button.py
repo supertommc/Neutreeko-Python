@@ -76,20 +76,21 @@ class SlideButton(Button):
     """
 
     def __init__(self, position, width, height, new_color, background_color, new_bar_color, pressed_color_offset,
-                 prefix, new_text_size, values, response):
+                 prefix, new_text_size, values, initial_value_index, response):
         Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "",
                         new_text_size, response)
         self.__bar_color = new_bar_color
         self.__prefix = prefix
         self.__values = values
         self.__number_values = len(values)
-        self.__current_value_index = 0
+        self.__current_value_index = initial_value_index
         self._text = self.__prefix + str(self.__values[self.__current_value_index])
         self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), new_text_size)
         self.__bar_width = 0.1 * width
         self.__bar_height = height
         self.__bar_x, self.__bar_y = position
         self.__dragging = False
+        self.update_bar_x_by_index()
 
     def get_bar_color(self):
         return self.__bar_color
@@ -115,6 +116,10 @@ class SlideButton(Button):
     def update_text(self):
         self._text = self.__prefix + str(self.__values[self.__current_value_index])
         self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), self._text_size)
+
+    def update_bar_x_by_index(self):
+        ratio = self.__current_value_index / self.__number_values
+        self.__bar_x = self._x + self._width * ratio
 
     def update_bar_position(self, mx):
         self.__bar_x = mx

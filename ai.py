@@ -1,5 +1,5 @@
 from gameUtils import GameUtils
-from moveGenerator import MoveGenerator
+import moveGenerator
 
 # AI Class
 # Represents the ai agent
@@ -87,7 +87,7 @@ class AI:
         return val
 
     # Evaluates a board position
-    def evaluate_position(self, piece, game, depth):
+    def evaluate_position(self, player, game, depth):
 
         if GameUtils.check_game_over(game, self.piece):
             return AI.WIN_SCORE + depth
@@ -119,7 +119,7 @@ class AI:
             return res, 0
 
         pos_scores = []
-        moves = MoveGenerator.generate_all_moves(game, current_player)
+        moves = moveGenerator.generate_all_moves(game, current_player)
 
         for move in moves:
             GameUtils.make_move(game, move)
@@ -144,7 +144,7 @@ class AI:
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
         
-        moves = MoveGenerator.generate_all_moves(game, current_player)
+        moves = moveGenerator.generate_all_moves(game, current_player)
 
         if is_max:
             score = self.MIN
@@ -186,7 +186,7 @@ class AI:
 
     # Generates all possible moves for a certain player and sorts them based on the resulting position's evaluation
     def generate_all_moves_sort(self, game, current_player, depth, is_max):
-        moves = MoveGenerator.generate_all_moves(game, current_player)
+        moves = moveGenerator.generate_all_moves(game, current_player)
         moves_with_score = []
         for move in moves:
             GameUtils.make_move(game, move)

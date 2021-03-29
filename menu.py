@@ -68,22 +68,6 @@ class Menu:
 class MainMenu(Menu):
     def __init__(self):
         Menu.__init__(self, "NEUTREEKO")
-        # self.__title_text = "NEUTREEKO"
-        # self.__title_font_size = 70
-        # self.__title_y = 100
-        # self.__title_color = (0, 0, 0)
-        # self.__title_text_width, _ = config.Config.get_font_width_height(self.__title_text, self.__title_font_size)
-        #
-        # self.__buttons_width = 420
-        # self.__buttons_height = 50
-        # self.__buttons_color = (0, 0, 0)
-        # self.__bar_color = (110, 110, 110)
-        # self.__buttons_background_color = (90, 90, 90)
-        # self.__buttons_pressed_color_offset = 20
-        # self.__buttons_font_size = 28
-        #
-        # self.__buttons_block_y = 200
-        # self.__buttons_offset = 20
 
         self.__player_vs_player_button = None
         self.__player_vs_player_button_text = "PLAYER VS PLAYER"
@@ -104,8 +88,6 @@ class MainMenu(Menu):
         self.__options_button = None
         self.__options_button_text = "OPTIONS"
         self.__options_button_response = responses.ChangeStateResponse(config.State.OPTIONS_MENU)
-
-        # self.__buttons_list = []
 
         self.__create_buttons()
 
@@ -172,37 +154,12 @@ class MainMenu(Menu):
 
 class OptionsMenu(Menu):
 
-    def __init__(self):
+    def __init__(self, initial_depth_hint, initial_depth_bot_1, initial_depth_bot_2):
         Menu.__init__(self, "OPTIONS")
-        # title properties
 
-        # self.__title_text = "NEUTREEKO"
-        # self.__title_font_size = 70
-        # self.__title_y = 100
-        # self.__title_color = (0, 0, 0)
-        # self.__title_text_width, _ = config.Config.get_font_width_height(self.__title_text, self.__title_font_size)
-        #
-        # # all buttons properties
-        #
-        # self.__buttons_color = (0, 0, 0)
-        # self.__bar_color = (110, 110, 110)
-        # self.__buttons_background_color = (90, 90, 90)
-        # self.__buttons_pressed_color_offset = 20
-        # self.__buttons_font_size = 28
-        #
-        # self.__buttons_horizontal_offset = 20
-        # self.__buttons_vertical_offset = 40
-        #
-        # self.__buttons_height = 50
-        # self.__small_buttons_width = 350
-        # self.__large_buttons_width = 2 * self.__small_buttons_width + self.__buttons_vertical_offset
-        #
-        # self.__left_small_buttons_x = config.Config.SCREEN_WIDTH // 2 - self.__buttons_vertical_offset // 2 - self.__small_buttons_width
-        # self.__right_small_buttons_x = config.Config.SCREEN_WIDTH // 2 + self.__buttons_vertical_offset // 2
-        # self.__large_buttons_x = self.__left_small_buttons_x
-        # self.__first_button_y = 200
-
-        # each button properties
+        self.__initial_depth_hint = initial_depth_hint
+        self.__initial_depth_bot_1 = initial_depth_bot_1
+        self.__initial_depth_bot_2 = initial_depth_bot_2
 
         self.__depth_hint_slide_button = None
         self.__depth_hint_slide_button_prefix = "DEPTH HINT: "
@@ -259,6 +216,7 @@ class OptionsMenu(Menu):
                                                             self.__depth_hint_slide_button_prefix,
                                                             self._buttons_font_size,
                                                             self.__depth_hint_slide_button_values,
+                                                            self.__initial_depth_hint,
                                                             self.__depth_hint_slide_button_response)
         self._buttons_list.append(self.__depth_hint_slide_button)
         self._slide_buttons_list.append(self.__depth_hint_slide_button)
@@ -286,6 +244,7 @@ class OptionsMenu(Menu):
                                                              self.__depth_bot_1_slide_button_prefix,
                                                              self._buttons_font_size,
                                                              self.__depth_bot_1_slide_button_values,
+                                                             self.__initial_depth_bot_1,
                                                              self.__depth_bot_1_slide_button_response)
         self._buttons_list.append(self.__depth_bot_1_slide_button)
         self._slide_buttons_list.append(self.__depth_bot_1_slide_button)
@@ -313,6 +272,7 @@ class OptionsMenu(Menu):
                                                              self.__depth_bot_2_slide_button_prefix,
                                                              self._buttons_font_size,
                                                              self.__depth_bot_2_slide_button_values,
+                                                             self.__initial_depth_bot_2,
                                                              self.__depth_bot_2_slide_button_response)
         self._buttons_list.append(self.__depth_bot_2_slide_button)
         self._slide_buttons_list.append(self.__depth_bot_2_slide_button)

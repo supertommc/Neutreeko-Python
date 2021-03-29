@@ -36,14 +36,6 @@ class PlayerMenu:
         self.__left_button_x = self.__x
         self.__right_button_x = self.__x + 350
 
-        self.__rematch_button = None
-        self.__rematch_button_text = "Rematch"
-        self.__rematch_button_response = responses.RematchResponse()
-
-        self.__leave_button = None
-        self.__leave_button_text = "Leave"
-        self.__leave_button_response = responses.ChangeStateResponse(config.State.MAIN_MENU)
-
         self.__resign_button = None
         self.__resign_button_text = "Resign"
         self.__resign_button_response = responses.ResignResponse(self.__player)
@@ -74,26 +66,12 @@ class PlayerMenu:
 
     def __create_buttons(self):
 
-        self.__rematch_button = button.Button((self.__left_button_x, self.__buttons_y), self.__buttons_width,
-                                              self.__buttons_height, self.__buttons_color,
-                                              self.__buttons_background_color,
-                                              self.__buttons_pressed_color_offset,
-                                              self.__rematch_button_text, self.__buttons_font_size,
-                                              self.__rematch_button_response)
-
         self.__resign_button = button.Button((self.__left_button_x, self.__buttons_y), self.__buttons_width,
                                              self.__buttons_height, self.__buttons_color,
                                              self.__buttons_background_color,
                                              self.__buttons_pressed_color_offset,
                                              self.__resign_button_text, self.__buttons_font_size,
                                              self.__resign_button_response)
-
-        self.__leave_button = button.Button((self.__right_button_x, self.__buttons_y), self.__buttons_width,
-                                            self.__buttons_height, self.__buttons_color,
-                                            self.__buttons_background_color,
-                                            self.__buttons_pressed_color_offset,
-                                            self.__leave_button_text, self.__buttons_font_size,
-                                            self.__leave_button_response)
 
         self.__offer_draw_button = button.Button((self.__right_button_x, self.__buttons_y), self.__buttons_width,
                                                  self.__buttons_height, self.__buttons_color,

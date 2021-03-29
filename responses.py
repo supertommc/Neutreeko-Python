@@ -28,22 +28,24 @@ class RematchResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.get_board().reset()
+        # app.neutreeko.get_board().reset()
+        app.neutreeko.reset_board()
 
 
 class RestartResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.get_board().reset()
+        # app.neutreeko.get_board().reset()
+        app.neutreeko.reset_board()
 
 
 class LeaveResponse:
-    def __init__(self, board):
-        self.__board = board
 
-    def on_press(self):
-        self.__board.reset()
+    @staticmethod
+    def on_press():
+        app.neutreeko.reset_board()
+        # app.neutreeko.get_board().reset()
         app.neutreeko.set_state(State.MAIN_MENU)
 
 
@@ -101,6 +103,3 @@ class OpeningBookToggleResponse:
     def on_press():
         # TODO: Implement this
         pass
-
-
-

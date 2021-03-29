@@ -243,6 +243,9 @@ class ScoreBar:
     def get_bar_y(self):
         return self.__y + self.__height - self.__current_bar_height
 
+    def reset(self):
+        self.__current_bar_height = 0.5 * self.__height
+
     def update(self, player, score):
         """ Update bar based on player score
 
@@ -293,8 +296,11 @@ class Hint:
 
 class Board:
 
-    def __init__(self, state):
+    def __init__(self, opening_book, state, depth_bot_1, depth_bot_2):
+        self.__opening_book = opening_book
         self.__initial_game_state = state
+        self.__depth_bot_1 = depth_bot_1
+        self.__depth_bot_2 = depth_bot_2
         self.__game_state = state
         self.__state = config.BoardState.PLAYER_TURN
 
@@ -462,8 +468,15 @@ class Board:
         self.__store_played_states()
         self.__store_move(self.__move.get_coords())
         self.__move.finish()
-        self.__change_turn()
         self.__update_game_state()
+
+        score = None
+
+        # if self.__player_turn == 1:
+        #     score = self.__bot_1.evaluate_position(0, self.__game_state, self.__bot_1)
+
+        # self.__score_bar.update(self.__player_turn)
+        self.__change_turn()
         self.__hint = None
 
     def __apply_move(self, move):
@@ -563,13 +576,6 @@ class Board:
     def __store_move(self, move):
         self.__played_moves.append(move)
 
-    def __start_move(self):
-        self.__move.start()
-
-    def __finish_move(self):
-        self.__state = config.BoardState.PLAYER_TURN
-        self.__move.finish()
-
     def generate_bot_move(self, depth):
         """ Generate the bot move using one function to get the best move
 
@@ -604,7 +610,7 @@ class Board:
 
         self.__hint = Hint(start_position, dest_position)
 
-    def apply_bot_move(self, depth, opening_book):
+    def apply_bot_move(self, depth):
         """ Apply the bot move, based on the bot depth and if it uses the opening book
 
         :param depth: depth of the bot
@@ -612,42 +618,50 @@ class Board:
         """
         self.__computer_processing = True
 
-        if opening_book is not None:
-            opening_book.find_next_move()
+        move = None
 
-        # score, move = self.generate_bot_move(depth)
-        if self.__player_turn == 1:
-            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
-        else:
-            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+        if self.__opening_book is not None:
+            move = self.__opening_book.find_next_move(self.__played_moves, self.__player_turn)
+            if move is None:
+                self.__opening_book = None
 
-        print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
-        self.__score_bar.update(self.__player_turn, score)
+        if move is None:
+            if self.__player_turn == 1:
+                score, move = self.__bot_1.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+            else:
+                score, move = self.__bot_2.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+            print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
+            self.__score_bar.update(self.__player_turn, score)
+
         self.__apply_move(move)
         self.__computer_processing = False
         self.__state = config.BoardState.PLAYER_TURN
 
-    def reset(self):
-        """ Reset board to its beginning state
-        """
-        self.__game_state = self.__initial_game_state
-        self.__player_1_resign = False
-        self.__player_2_resign = False
-        self.__draw_accepted = False
-        self.__game_over = False
-
-        self.__played_states.clear()
-        self.__played_moves.clear()
-        self.__tiles.clear()
-        self.__move.reset()
-
-        self.__create_tiles()
-        self.__insert_pieces_from_state()
-
-        self.__state = config.BoardState.PLAYER_TURN
-        self.__player_turn = 1
-
-        self.__hint = None
+    # def reset(self):
+    #     """ Reset board to its beginning state
+    #     """
+    #     self.__game_state = self.__initial_game_state
+    #     self.__player_1_resign = False
+    #     self.__player_2_resign = False
+    #     self.__draw_accepted = False
+    #     self.__game_over = False
+    #
+    #     self.__played_states.clear()
+    #     self.__played_moves.clear()
+    #     self.__tiles.clear()
+    #     self.__move.reset()
+    #     self.__score_bar.reset()
+    #
+    #     self.__create_tiles()
+    #     self.__insert_pieces_from_state()
+    #
+    #     self.__state = config.BoardState.PLAYER_TURN
+    #     self.__player_turn = 1
+    #
+    #     self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
+    #     self.__player_2_menu.update(config.BoardState.WAIT)
+    #
+    #     self.__hint = None
 
     def press(self, mx, my):
         """ Process mouse event when the mouse is pressed over the board
