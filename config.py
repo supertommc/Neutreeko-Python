@@ -2,6 +2,9 @@ from p5 import create_font
 
 
 class Config:
+    """
+        Application configurations
+    """
     SCREEN_WIDTH = 1000
     SCREEN_HEIGHT = 700
     BACKGROUND_COLOR = (204, 204, 204)
@@ -28,14 +31,21 @@ class Config:
 
 
 class State:
-    MENU = 0
-    PLAYER_VS_PLAYER = 1
-    PLAYER_VS_BOT = 2
-    BOT_VS_PLAYER = 3
-    BOT_VS_BOT = 4
+    """
+        Application States Enumerator (I didn't find enumerators structures in python better than this)
+    """
+    MAIN_MENU = 0
+    OPTIONS_MENU = 1
+    PLAYER_VS_PLAYER = 2
+    PLAYER_VS_BOT = 3
+    BOT_VS_PLAYER = 4
+    BOT_VS_BOT = 5
 
 
 class BoardState:
+    """
+        Board States Enumerator (I didn't find enumerators structures in python better than this)
+    """
     PLAYER_TURN = 0
     OFFER_DRAW = 1
     OPPONENT_OFFER_DRAW = 2

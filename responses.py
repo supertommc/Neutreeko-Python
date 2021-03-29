@@ -1,5 +1,11 @@
 import app
 from config import State
+from threading import Thread
+
+
+"""
+    Here are all responses used on buttons in menus and in board
+"""
 
 
 class ChangeStateResponse:
@@ -22,23 +28,25 @@ class RematchResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.get_board().reset()
+        # app.neutreeko.get_board().reset()
+        app.neutreeko.reset_board()
 
 
 class RestartResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.get_board().reset()
+        # app.neutreeko.get_board().reset()
+        app.neutreeko.reset_board()
 
 
 class LeaveResponse:
-    def __init__(self, board):
-        self.__board = board
 
-    def on_press(self):
-        self.__board.reset()
-        app.neutreeko.set_state(State.MENU)
+    @staticmethod
+    def on_press():
+        app.neutreeko.reset_board()
+        # app.neutreeko.get_board().reset()
+        app.neutreeko.set_state(State.MAIN_MENU)
 
 
 class ResignResponse:
@@ -75,4 +83,23 @@ class HintResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.generate_hint()
+        thread = Thread(target=app.neutreeko.generate_hint)
+        thread.start()
+
+
+class EvaluationToggleResponse:
+    def __init__(self, bot):
+        self.__bot = bot
+
+    @staticmethod
+    def on_press():
+        # TODO: Implement this
+        pass
+
+
+class OpeningBookToggleResponse:
+
+    @staticmethod
+    def on_press():
+        # TODO: Implement this
+        pass

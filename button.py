@@ -1,7 +1,15 @@
 import config
 
 
+"""
+    Here are all the buttons classes used in the menus
+"""
+
+
 class Button:
+    """
+        This is the base and simple button that only execute its response when it is pressed
+    """
 
     def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, new_text,
                  new_text_size, response):
@@ -63,22 +71,26 @@ class Button:
 
 
 class SlideButton(Button):
+    """
+        This is a more sophisticated button that has a slide bar to choose a number in the values list
+    """
 
     def __init__(self, position, width, height, new_color, background_color, new_bar_color, pressed_color_offset,
-                 prefix, new_text_size, values, response):
+                 prefix, new_text_size, values, initial_value_index, response):
         Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "",
                         new_text_size, response)
         self.__bar_color = new_bar_color
         self.__prefix = prefix
         self.__values = values
         self.__number_values = len(values)
-        self.__current_value_index = 0
+        self.__current_value_index = initial_value_index
         self._text = self.__prefix + str(self.__values[self.__current_value_index])
         self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), new_text_size)
         self.__bar_width = 0.1 * width
         self.__bar_height = height
         self.__bar_x, self.__bar_y = position
         self.__dragging = False
+        self.update_bar_x_by_index()
 
     def get_bar_color(self):
         return self.__bar_color
@@ -90,8 +102,6 @@ class SlideButton(Button):
         return self.__bar_height
 
     def get_bar_x(self):
-        # bar_ratio = self.__current_value_index / len(self.__values)
-        # return self._x + self._width * bar_ratio
         return self.__bar_x
 
     def get_bar_y(self):
@@ -106,6 +116,10 @@ class SlideButton(Button):
     def update_text(self):
         self._text = self.__prefix + str(self.__values[self.__current_value_index])
         self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), self._text_size)
+
+    def update_bar_x_by_index(self):
+        ratio = self.__current_value_index / self.__number_values
+        self.__bar_x = self._x + self._width * ratio
 
     def update_bar_position(self, mx):
         self.__bar_x = mx
@@ -146,3 +160,36 @@ class SlideButton(Button):
         if self.__dragging:
             self.update(mx)
             self._response.on_drag(self)
+
+
+class ToggleButton(Button):
+    """
+        This is a more sophisticated button that when you press it, it change the current value to the next in the
+        values list
+    """
+
+    def __init__(self, position, width, height, new_color, background_color, pressed_color_offset, prefix, new_text_size, values, response):
+        Button.__init__(self, position, width, height, new_color, background_color, pressed_color_offset, "", new_text_size, response)
+
+        self.__prefix = prefix
+        self.__values = values
+        self.__number_values = len(values)
+
+        self.__current_value_index = 0
+        self._text = self.__prefix + str(self.__values[self.__current_value_index])
+        self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), new_text_size)
+
+    def get_current_value(self):
+        return self.__values[self.__current_value_index]
+
+    def update_text(self):
+        self._text = self.__prefix + str(self.__values[self.__current_value_index])
+        self.set_text(self.__prefix + str(self.__values[self.__current_value_index]), self._text_size)
+
+    def update(self):
+        self.__current_value_index = (self.__current_value_index + 1) % self.__number_values
+        self.update_text()
+
+    def press(self, mx, my):
+        if self.is_hover(mx, my):
+            self.update()

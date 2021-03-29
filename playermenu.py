@@ -4,6 +4,18 @@ import responses
 
 
 class PlayerMenu:
+    """
+        Menu that appear in the bottom of the board (player 1) or in the to of the board (player 2)
+
+        Buttons that appear when is player turn:
+            -> [Resign] [Offer Draw]
+        Buttons that appear when a player offer a draw
+            -> Player that offered a draw: [Resign] [Cancel Draw]
+            -> Opponent player: [Accept Draw] [Decline Draw]
+
+        Texts that appear depending on board states:
+            -> YOUR TURN ; YOU WIN ; YOU LOSE ; DRAW
+    """
     def __init__(self, player, position):
         self.__player = player
         self.__x, self.__y = position
@@ -23,14 +35,6 @@ class PlayerMenu:
         self.__buttons_y = self.__y
         self.__left_button_x = self.__x
         self.__right_button_x = self.__x + 350
-
-        self.__rematch_button = None
-        self.__rematch_button_text = "Rematch"
-        self.__rematch_button_response = responses.RematchResponse()
-
-        self.__leave_button = None
-        self.__leave_button_text = "Leave"
-        self.__leave_button_response = responses.ChangeStateResponse(config.State.MENU)
 
         self.__resign_button = None
         self.__resign_button_text = "Resign"
@@ -62,26 +66,12 @@ class PlayerMenu:
 
     def __create_buttons(self):
 
-        self.__rematch_button = button.Button((self.__left_button_x, self.__buttons_y), self.__buttons_width,
-                                              self.__buttons_height, self.__buttons_color,
-                                              self.__buttons_background_color,
-                                              self.__buttons_pressed_color_offset,
-                                              self.__rematch_button_text, self.__buttons_font_size,
-                                              self.__rematch_button_response)
-
         self.__resign_button = button.Button((self.__left_button_x, self.__buttons_y), self.__buttons_width,
                                              self.__buttons_height, self.__buttons_color,
                                              self.__buttons_background_color,
                                              self.__buttons_pressed_color_offset,
                                              self.__resign_button_text, self.__buttons_font_size,
                                              self.__resign_button_response)
-
-        self.__leave_button = button.Button((self.__right_button_x, self.__buttons_y), self.__buttons_width,
-                                            self.__buttons_height, self.__buttons_color,
-                                            self.__buttons_background_color,
-                                            self.__buttons_pressed_color_offset,
-                                            self.__leave_button_text, self.__buttons_font_size,
-                                            self.__leave_button_response)
 
         self.__offer_draw_button = button.Button((self.__right_button_x, self.__buttons_y), self.__buttons_width,
                                                  self.__buttons_height, self.__buttons_color,
@@ -134,6 +124,11 @@ class PlayerMenu:
         self.__text_x = self.__x + 250 - text_width / 2
 
     def update(self, state):
+        """ Update the player menu depending on the board state
+
+        :param state: Board state
+        :return:
+        """
         self.__current_buttons_list.clear()
 
         if state == config.BoardState.WAIT:
@@ -175,5 +170,10 @@ class PlayerMenu:
             print("Invalid state!")
 
     def press(self, mx, my):
+        """ Process the press mouse event
+
+        :param mx: x coord of mouse
+        :param my: y coord of mouse
+        """
         for current_button in self.__current_buttons_list:
             current_button.press(mx, my)

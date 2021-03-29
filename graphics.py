@@ -6,6 +6,11 @@ from config import Config, State
 class ButtonView:
     @staticmethod
     def display(button):
+        """ Display button on screen
+
+        :param button:
+        :return:
+        """
         text_size(button.get_text_size())
 
         # draw button background
@@ -23,6 +28,11 @@ class ButtonView:
 class SlideButtonView:
     @staticmethod
     def display(button):
+        """ Display slide button on screen
+
+        :param button:
+        :return:
+        """
         text_size(button.get_text_size())
 
         # draw button background
@@ -45,46 +55,74 @@ class SlideButtonView:
         text(button.get_text(), button.get_text_x(), button.get_text_y())
 
 
-class MenuView:
+class MainMenuView:
     @staticmethod
-    def display(menu):
+    def display(main_menu):
+        """ Display main menu on screen
+
+        :param main_menu:
+        :return:
+        """
 
         # display title
-        text_size(menu.get_title_font_size())
-        fill(menu.get_title_color()[0], menu.get_title_color()[1], menu.get_title_color()[2])
-        text(menu.get_title_text(), menu.get_title_x(), menu.get_title_y())
+        text_size(main_menu.get_title_font_size())
+        fill(main_menu.get_title_color()[0], main_menu.get_title_color()[1], main_menu.get_title_color()[2])
+        text(main_menu.get_title_text(), main_menu.get_title_x(), main_menu.get_title_y())
 
         # display buttons
-        ButtonView.display(menu.get_player_vs_player_button())
-        ButtonView.display(menu.get_player_vs_bot_button())
-        ButtonView.display(menu.get_bot_vs_player_button())
-        ButtonView.display(menu.get_bot_vs_bot_button())
-        SlideButtonView.display(menu.get_depth_slide_button_bot_1())
-        SlideButtonView.display(menu.get_depth_slide_button_bot_2())
+        ButtonView.display(main_menu.get_player_vs_player_button())
+        ButtonView.display(main_menu.get_player_vs_bot_button())
+        ButtonView.display(main_menu.get_bot_vs_player_button())
+        ButtonView.display(main_menu.get_bot_vs_bot_button())
+        ButtonView.display(main_menu.get_options_button())
+
+
+class OptionsMenuView:
+    @staticmethod
+    def display(options_menu):
+        """ Display options menu on screen
+
+        :param options_menu:
+        :return:
+        """
+        # display title
+        text_size(options_menu.get_title_font_size())
+        fill(options_menu.get_title_color()[0], options_menu.get_title_color()[1], options_menu.get_title_color()[2])
+        text(options_menu.get_title_text(), options_menu.get_title_x(), options_menu.get_title_y())
+
+        # display buttons
+        for i in range(3):
+            SlideButtonView.display(options_menu.get_depth_slide_button(i))
+            ButtonView.display(options_menu.get_evaluation_toggle_button(i))
+        ButtonView.display(options_menu.get_opening_book_toggle_button())
+        ButtonView.display(options_menu.get_back_button())
 
 
 class PieceView:
 
     @staticmethod
     def display(piece):
+        """ Display piece on screen
+
+        :param piece:
+        :return:
+        """
         if piece.get_player() == 1:
             image(Config.black_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
 
         elif piece.get_player() == 2:
             image(Config.white_piece_image, Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
 
-    @staticmethod
-    def clear(piece):
-        background_color = config.Config.BACKGROUND_COLOR
-        fill(background_color[0], background_color[1], background_color[2])
-        no_stroke()
-        circle(piece.get_position(), piece.get_radius())
-
 
 class TileView:
 
     @staticmethod
     def display(tile):
+        """ Display tile on screen
+
+        :param tile:
+        :return:
+        """
         fill(tile.get_color()[0], tile.get_color()[1], tile.get_color()[2])
         square(tile.get_position(), tile.get_edge())
 
@@ -93,6 +131,11 @@ class ScoreBarView:
 
     @staticmethod
     def display(score_bar):
+        """ Display score bar on screen
+
+        :param score_bar:
+        :return:
+        """
         black_pieces_color = config.Config.BLACK_PIECES_COLOR
         white_pieces_color = config.Config.WHITE_PIECES_COLOR
 
@@ -107,6 +150,11 @@ class PlayerMenuView:
 
     @staticmethod
     def display(player_menu):
+        """ Display player menu on screen
+
+        :param player_menu:
+        :return:
+        """
 
         # display title
         text_size(player_menu.get_text_font_size())
@@ -122,6 +170,11 @@ class BoardMenuView:
 
     @staticmethod
     def display(board_menu):
+        """ Display board menu on screen
+
+        :param board_menu:
+        :return:
+        """
 
         # display buttons
         for button in board_menu.get_buttons():
@@ -132,6 +185,11 @@ class HintView:
 
     @staticmethod
     def display(hint):
+        """ Display hint on screen
+
+        :param hint:
+        :return:
+        """
 
         # display hint line
         line_color = hint.get_line_color()
@@ -144,6 +202,11 @@ class BoardView:
 
     @staticmethod
     def display(game_board):
+        """ Display game board on screen
+
+        :param game_board:
+        :return:
+        """
 
         # display board
         image(Config.board_image, (100, 100))
@@ -163,6 +226,11 @@ class BoardView:
 
 
 def setup():
+    """ p5 setup
+
+    :param:
+    :return:
+    """
     title("NEUTREEKO")
     size(Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT)
     game_font = create_font(Config.FONT_PATH, size=50)
@@ -173,12 +241,20 @@ def setup():
 
 
 def draw():
+    """ Draw application each frame
+
+    :param:
+    :return:
+    """
     clear()
 
     neutreeko.update()
 
-    if neutreeko.get_state() == State.MENU:
-        MenuView.display(neutreeko.get_menu())
+    if neutreeko.get_state() == State.MAIN_MENU:
+        MainMenuView.display(neutreeko.get_main_menu())
+
+    elif neutreeko.get_state() == State.OPTIONS_MENU:
+        OptionsMenuView.display(neutreeko.get_options_menu())
 
     else:
         BoardView.display(neutreeko.get_board())
@@ -188,15 +264,31 @@ def draw():
 
 
 def mouse_pressed():
+    """ Catch mouse press event
+
+    :param:
+    :return:
+    """
     neutreeko.process_press(mouse_x, mouse_y)
 
 
 def mouse_released():
+    """ Catch mouse release event
+
+    :param:
+    :return:
+    """
     neutreeko.process_release()
 
 
 def mouse_dragged():
+    """ Catch mouse drag event
+
+    :param:
+    :return:
+    """
     neutreeko.process_drag(mouse_x)
 
 
-run()
+# run main loop
+run(frame_rate=60)

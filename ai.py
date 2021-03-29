@@ -120,7 +120,7 @@ class AI:
             return res, 0
 
         pos_scores = []
-        moves = MoveGenerator.generate_all_moves(game, current_player)
+        moves = moveGenerator.generate_all_moves(game, current_player)
 
         for move in moves:
             GameUtils.make_move(game, move)
@@ -145,7 +145,7 @@ class AI:
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
         
-        moves = MoveGenerator.generate_all_moves(game, current_player)
+        moves = moveGenerator.generate_all_moves(game, current_player)
 
         if is_max:
             score = self.MIN
