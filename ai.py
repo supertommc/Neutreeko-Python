@@ -86,6 +86,7 @@ class AI:
                 elif game[i][j] == self.other_piece:
                     val -= self.check_neighbours((i, j), game)
                     val -= self.rel_scores[i][j]
+        # return val + random.randint(-1, 1)
         return val
 
     def evaluate_position_center(self, game):

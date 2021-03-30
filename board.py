@@ -241,6 +241,9 @@ class ScoreBar:
     def get_current_bar_height(self):
         return self.__current_bar_height
 
+    def get_bar_x(self):
+        return self.__x
+
     def get_bar_y(self):
         return self.__y + self.__height - self.__current_bar_height
 

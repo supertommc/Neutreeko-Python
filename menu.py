@@ -49,6 +49,9 @@ class Menu:
     def get_title_y(self):
         return self._title_y
 
+    def get_title_position(self):
+        return self.get_title_x(), self.get_title_y()
+
     def get_title_color(self):
         return self._title_color
 
@@ -164,6 +167,8 @@ class OptionsMenu(Menu):
         self.__use_opening_book_index = int(initial_use_opening_bool)
         self.__initial_evaluation_index = initial_evaluation_index
 
+        self.__evaluation_values = ["RANDOM", "EASY", "MEDIUM", "HARD", "HARD++"]
+
         self.__depth_hint_slide_button = None
         self.__depth_hint_slide_button_prefix = "DEPTH HINT: "
         self.__depth_hint_slide_button_values = range(1, 10)
@@ -171,7 +176,7 @@ class OptionsMenu(Menu):
 
         self.__evaluation_hint_toggle_button = None
         self.__evaluation_hint_toggle_button_prefix = "EVAL: "
-        self.__evaluation_hint_toggle_button_values = ["EASY", "MEDIUM", "HARD"]
+        self.__evaluation_hint_toggle_button_values = self.__evaluation_values
         self.__evaluation_hint_toggle_button_response = responses.EvaluationToggleResponse(0)
 
         self.__depth_bot_1_slide_button = None
@@ -181,7 +186,7 @@ class OptionsMenu(Menu):
 
         self.__evaluation_bot_1_toggle_button = None
         self.__evaluation_bot_1_toggle_button_prefix = "EVAL: "
-        self.__evaluation_bot_1_toggle_button_values = ["EASY", "MEDIUM", "HARD"]
+        self.__evaluation_bot_1_toggle_button_values = self.__evaluation_values
         self.__evaluation_bot_1_toggle_button_response = responses.EvaluationToggleResponse(1)
 
         self.__depth_bot_2_slide_button = None
@@ -191,7 +196,7 @@ class OptionsMenu(Menu):
 
         self.__evaluation_bot_2_toggle_button = None
         self.__evaluation_bot_2_toggle_button_prefix = "EVAL: "
-        self.__evaluation_bot_2_toggle_button_values = ["EASY", "MEDIUM", "HARD"]
+        self.__evaluation_bot_2_toggle_button_values = self.__evaluation_values
         self.__evaluation_bot_2_toggle_button_response = responses.EvaluationToggleResponse(2)
 
         self.__opening_book_toggle_button = None

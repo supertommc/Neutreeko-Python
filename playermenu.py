@@ -113,6 +113,9 @@ class PlayerMenu:
     def get_text_y(self):
         return self.__text_y
 
+    def get_text_position(self):
+        return self.__x, self.__y
+
     def get_current_text(self):
         return self.__current_text
 

@@ -30,6 +30,9 @@ class Button:
     def get_y(self):
         return self._y
 
+    def get_position(self):
+        return self._x, self._y
+
     def get_color(self):
         return self._color
 
