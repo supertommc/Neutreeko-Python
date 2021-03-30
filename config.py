@@ -1,6 +1,3 @@
-from p5 import create_font
-
-
 class Config:
     """
         Application configurations
@@ -18,12 +15,6 @@ class Config:
     board_image = None
     black_piece_image = None
     white_piece_image = None
-
-    @staticmethod
-    def get_font_width_height(font_text, font_size):
-        image_font = create_font(Config.FONT_PATH, font_size)
-        font_size = image_font.getsize(font_text)
-        return font_size[0], font_size[1]
 
     @staticmethod
     def get_circle_top_left_position(center_x, center_y, radius):

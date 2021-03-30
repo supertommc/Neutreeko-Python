@@ -12,7 +12,7 @@ class Menu:
         self._title_font_size = 70
         self._title_y = 100
         self._title_color = (0, 0, 0)
-        self._title_text_width, _ = config.Config.get_font_width_height(self._title_text, self._title_font_size)
+        # self._title_text_width, _ = config.Config.get_font_width_height(self._title_text, self._title_font_size)
 
         # all buttons properties
 
@@ -43,14 +43,15 @@ class Menu:
     def get_title_font_size(self):
         return self._title_font_size
 
-    def get_title_x(self):
-        return config.Config.SCREEN_WIDTH / 2 - self._title_text_width / 2
+    @staticmethod
+    def get_title_x(title_text_width):
+        return config.Config.SCREEN_WIDTH / 2 - title_text_width / 2
 
     def get_title_y(self):
         return self._title_y
 
-    def get_title_position(self):
-        return self.get_title_x(), self.get_title_y()
+    def get_title_position(self, title_text_width):
+        return self.get_title_x(title_text_width), self.get_title_y()
 
     def get_title_color(self):
         return self._title_color

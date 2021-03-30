@@ -151,27 +151,31 @@ class Neutreeko:
                 move.update_piece_position()
 
         else:
-            if self.__bot_thread is not None:
-                self.__bot_thread.join()
-                self.__bot_thread = None
+            # if self.__bot_thread is not None:
+            #     self.__bot_thread.join()
+            #     self.__bot_thread = None
             if self.__game_board.get_player_turn() == 1:
                 if (self.__state == config.State.BOT_VS_PLAYER) or (self.__state == config.State.BOT_VS_BOT):
                     if self.__use_opening_book:
-                        self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, self.__opening_book))
-                        self.__bot_thread.start()
+                        # self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, self.__opening_book))
+                        # self.__bot_thread.start()
+                        self.__game_board.apply_bot_move(self.__depth_bot_1, self.__opening_book)
 
                     else:
-                        self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, None))
-                        self.__bot_thread.start()
+                        # self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_1, None))
+                        # self.__bot_thread.start()
+                        self.__game_board.apply_bot_move(self.__depth_bot_1, None)
 
             elif self.__game_board.get_player_turn() == 2:
                 if (self.__state == config.State.PLAYER_VS_BOT) or (self.__state == config.State.BOT_VS_BOT):
                     if self.__use_opening_book:
-                        self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book))
-                        self.__bot_thread.start()
+                        # self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, self.__opening_book))
+                        # self.__bot_thread.start()
+                        self.__game_board.apply_bot_move(self.__depth_bot_2, self.__opening_book)
                     else:
-                        self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, None))
-                        self.__bot_thread.start()
+                        # self.__bot_thread = Thread(target=self.__game_board.apply_bot_move, args=(self.__depth_bot_2, None))
+                        # self.__bot_thread.start()
+                        self.__game_board.apply_bot_move(self.__depth_bot_2, None)
 
         self.__game_board.check_game_over()
 

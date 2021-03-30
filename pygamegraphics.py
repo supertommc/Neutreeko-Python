@@ -5,6 +5,15 @@ import pygame.image
 import pygame.mouse
 
 
+class Utils:
+
+    @staticmethod
+    def get_font_width_height(font_text, font_size):
+        image_font = create_font(Config.FONT_PATH, font_size)
+        font_size = image_font.getsize(font_text)
+        return font_size[0], font_size[1]
+
+
 class ButtonView:
     @staticmethod
     def display(button, screen):
@@ -22,7 +31,7 @@ class ButtonView:
         # draw button text
         my_font = pygame.font.Font(Config.FONT_PATH, button.get_text_size())  # Load font object.
         text_image = my_font.render(button.get_text(), True, button.get_color())  # Render text image.
-        screen.blit(text_image, button.get_position())  # Draw image to screen.
+        screen.blit(text_image, button.get_text_position(text_image.get_width(), text_image.get_height()))  # Draw image to screen.
 
 
 class SlideButtonView:
@@ -54,7 +63,7 @@ class SlideButtonView:
         # draw button text
         my_font = pygame.font.Font(Config.FONT_PATH, button.get_text_size())  # Load font object.
         text_image = my_font.render(button.get_text(), True, button.get_color())  # Render text image.
-        screen.blit(text_image, button.get_position())  # Draw image to screen.
+        screen.blit(text_image, button.get_text_position(text_image.get_width(), text_image.get_height()))  # Draw image to screen.
 
 
 class MainMenuView:
@@ -64,7 +73,7 @@ class MainMenuView:
         # display title
         my_font = pygame.font.Font(Config.FONT_PATH, main_menu.get_title_font_size())
         text_image = my_font.render(main_menu.get_title_text(), True, main_menu.get_title_color())
-        screen.blit(text_image, main_menu.get_title_position())
+        screen.blit(text_image, main_menu.get_title_position(text_image.get_width()))
 
         # display buttons
         ButtonView.display(main_menu.get_player_vs_player_button(), screen)
@@ -103,14 +112,6 @@ class PieceView:
             white_piece_image_rect = Config.white_piece_image.get_rect()
             white_piece_image_rect = white_piece_image_rect.move(Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
             screen.blit(Config.white_piece_image, white_piece_image_rect)
-
-
-class TileView:
-
-    @staticmethod
-    def display(tile):
-        fill(tile.get_color()[0], tile.get_color()[1], tile.get_color()[2])
-        square(tile.get_position(), tile.get_edge())
 
 
 class ScoreBarView:
@@ -210,7 +211,6 @@ def main():
     Config.white_piece_image = pygame.image.load(Config.WHITE_PIECE_IMAGE_PATH)
 
     clock = pygame.time.Clock()
-    dt = 0
     while True:
 
         events = pygame.event.get()
@@ -230,7 +230,7 @@ def main():
         draw(screen)
         pygame.display.update()
 
-        dt = clock.tick(120)
+        clock.tick(120)
 
         pygame.display.flip()
 

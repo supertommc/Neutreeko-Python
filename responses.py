@@ -83,10 +83,11 @@ class HintResponse:
 
     @staticmethod
     def on_press():
-        app.neutreeko.join_hint_thread()
-        thread = Thread(target=app.neutreeko.generate_hint)
-        thread.start()
-        app.neutreeko.set_hint_thread(thread)
+        app.neutreeko.generate_hint()
+        # app.neutreeko.join_hint_thread()
+        # thread = Thread(target=app.neutreeko.generate_hint)
+        # thread.start()
+        # app.neutreeko.set_hint_thread(thread)
 
 
 class EvaluationToggleResponse:
