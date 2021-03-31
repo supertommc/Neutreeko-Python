@@ -300,11 +300,9 @@ class Hint:
 
 class Board:
 
-    def __init__(self, opening_book, state, depth_bot_1, depth_bot_2):
+    def __init__(self, opening_book, state):
         self.__opening_book = opening_book
         self.__initial_game_state = state
-        self.__depth_bot_1 = depth_bot_1
-        self.__depth_bot_2 = depth_bot_2
         self.__game_state = state
         self.__state = config.BoardState.PLAYER_TURN
 
@@ -328,8 +326,11 @@ class Board:
 
         self.__move = Move()
 
-        self.__bot_1 = AI(1)
-        self.__bot_2 = AI(2)
+        # self.__bot_1 = AI(1)
+        # self.__bot_2 = AI(2)
+        #
+        # self.__hint_1 = AI(1)
+        # self.__hint_2 = AI(2)
 
         self.__player_1_resign = False
         self.__player_2_resign = False
@@ -538,8 +539,6 @@ class Board:
         result = GameUtils.check_game_over_full(self.__game_state)
 
         print("Result: {}".format(result))
-        print("Player 1 resign: {}".format(self.__player_1_resign))
-        print("Player 2 resign: {}".format(self.__player_2_resign))
         pprint(self.__game_state)
 
         if (result == 1) or self.__player_2_resign:
@@ -590,26 +589,8 @@ class Board:
     def __store_move(self, move):
         self.__played_moves.append(move)
 
-    def generate_bot_move(self, depth):
-        """ Generate the bot move using one function to get the best move
-
-        :param depth: depth of the bot
-        :return: move and move score
-        """
-        if self.__player_turn == 1:
-            score, move = self.__bot_1.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
-        else:
-            score, move = self.__bot_2.minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
-        return score, move
-
-    def generate_hint(self, hint_depth):
-        """ Generate the Hint object to display the best move whenever the player want
-
-        :param hint_depth: depth of the hint
-        """
-        self.__computer_processing = True
-        _, move = self.generate_bot_move(hint_depth)
-        self.__computer_processing = False
+    def generate_hint(self, depth, hints):
+        score, move = hints[self.__player_turn].minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
         start_x, start_y, dest_x, dest_y = move
 
         start_position = None
@@ -624,12 +605,7 @@ class Board:
 
         self.__hint = Hint(start_position, dest_position)
 
-    def apply_bot_move(self, depth, opening_book):
-        """ Apply the bot move, based on the bot depth and if it uses the opening book
-
-        :param depth: depth of the bot
-        :param opening_book: book which has stored all theoretical opening moves
-        """
+    def apply_bot_move(self, depths_bots, player_bots, opening_book):
 
         move = None
         score = None
@@ -646,53 +622,18 @@ class Board:
             if self.__opening_book_active:
                 GameUtils.make_move(self.__game_state, move)
 
-                if self.__player_turn == 1:
-                    score = self.__bot_1.evaluate_position(1, self.__game_state, depth, self.__bot_1.evaluate_position_all_combined)
-
-                elif self.__player_turn == 2:
-                    score = self.__bot_1.evaluate_position(2, self.__game_state, depth, self.__bot_1.evaluate_position_all_combined)
+                score = player_bots[self.__player_turn].evaluate_position(self.__player_turn, self.__game_state, depths_bots[self.__player_turn])
 
                 GameUtils.unmake_move(self.__game_state, move)
 
         if not self.__opening_book_active:
-            self.__computer_processing = True
-            if self.__player_turn == 1:
-                score, move = self.__bot_1.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX, self.__bot_1.evaluate_position_all_combined)
-            else:
-                score, move = self.__bot_2.minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX, self.__bot_1.evaluate_position_all_combined)
+            score, move = player_bots[self.__player_turn].minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depths_bots[self.__player_turn], AI.MIN, AI.MAX)
             print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
-            self.__computer_processing = False
 
         self.__score_bar.update(self.__player_turn, score)
         print("Move: {}".format(move))
         self.__apply_move(move)
         self.__state = config.BoardState.PLAYER_TURN
-
-    # def reset(self):
-    #     """ Reset board to its beginning state
-    #     """
-    #     self.__game_state = self.__initial_game_state
-    #     self.__player_1_resign = False
-    #     self.__player_2_resign = False
-    #     self.__draw_accepted = False
-    #     self.__game_over = False
-    #
-    #     self.__played_states.clear()
-    #     self.__played_moves.clear()
-    #     self.__tiles.clear()
-    #     self.__move.reset()
-    #     self.__score_bar.reset()
-    #
-    #     self.__create_tiles()
-    #     self.__insert_pieces_from_state()
-    #
-    #     self.__state = config.BoardState.PLAYER_TURN
-    #     self.__player_turn = 1
-    #
-    #     self.__player_1_menu.update(config.BoardState.PLAYER_TURN)
-    #     self.__player_2_menu.update(config.BoardState.WAIT)
-    #
-    #     self.__hint = None
 
     def press(self, mx, my):
         """ Process mouse event when the mouse is pressed over the board

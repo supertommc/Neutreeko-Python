@@ -94,10 +94,14 @@ class EvaluationToggleResponse:
     def __init__(self, bot):
         self.__bot = bot
 
-    @staticmethod
-    def on_press(button):
-        # TODO: Implement this
-        pass
+    def on_press(self, button):
+        if self.__bot == 0:
+            hint_bots = app.neutreeko.get_hint_bots()
+            hint_bots[1].change_current_evaluation_function(button.get_current_value())
+            hint_bots[2].change_current_evaluation_function(button.get_current_value())
+        else:
+            player_bots = app.neutreeko.get_player_bots()
+            player_bots[self.__bot].change_current_evaluation_function(button.get_current_value())
 
 
 class OpeningBookToggleResponse:

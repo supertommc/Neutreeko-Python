@@ -5,15 +5,6 @@ import pygame.image
 import pygame.mouse
 
 
-class Utils:
-
-    @staticmethod
-    def get_font_width_height(font_text, font_size):
-        image_font = create_font(Config.FONT_PATH, font_size)
-        font_size = image_font.getsize(font_text)
-        return font_size[0], font_size[1]
-
-
 class ButtonView:
     @staticmethod
     def display(button, screen):
@@ -89,7 +80,7 @@ class OptionsMenuView:
         # display title
         my_font = pygame.font.Font(Config.FONT_PATH, options_menu.get_title_font_size())
         text_image = my_font.render(options_menu.get_title_text(), True, options_menu.get_title_color())
-        screen.blit(text_image, options_menu.get_title_position())
+        screen.blit(text_image, options_menu.get_title_position(text_image.get_width()))
 
         # display buttons
         for i in range(3):
@@ -135,7 +126,7 @@ class PlayerMenuView:
 
         my_font = pygame.font.Font(Config.FONT_PATH, player_menu.get_text_font_size())
         text_image = my_font.render(player_menu.get_current_text(), True, player_menu.get_text_color())
-        screen.blit(text_image, player_menu.get_text_position())
+        screen.blit(text_image, player_menu.get_text_position(text_image.get_width()))
 
         # display buttons
         for button in player_menu.get_current_buttons_list():
@@ -165,6 +156,8 @@ class BoardView:
 
     @staticmethod
     def display(game_board, screen):
+
+
 
         # display board
         image_rect = Config.board_image.get_rect()

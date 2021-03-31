@@ -57,9 +57,6 @@ class PlayerMenu:
         self.__decline_draw_button_response = responses.CancelDrawResponse()
 
         self.__current_text = self.__turn_text
-        self.__text_x = 0
-        self.__text_y = self.__y + 10
-        self.__update_text_position()
 
         self.__current_buttons_list = []
         self.__create_buttons()
@@ -107,24 +104,14 @@ class PlayerMenu:
     def get_text_color(self):
         return self.__text_color
 
-    def get_text_x(self):
-        return self.__text_x
-
-    def get_text_y(self):
-        return self.__text_y
-
-    def get_text_position(self):
-        return self.__x, self.__y
+    def get_text_position(self, text_width):
+        return self.__x + 250 - text_width / 2, self.__y + 10
 
     def get_current_text(self):
         return self.__current_text
 
     def get_current_buttons_list(self):
         return self.__current_buttons_list
-
-    def __update_text_position(self):
-        text_width, _ = config.Config.get_font_width_height(self.__current_text, self.__text_font_size)
-        self.__text_x = self.__x + 250 - text_width / 2
 
     def update(self, state):
         """ Update the player menu depending on the board state
@@ -141,33 +128,27 @@ class PlayerMenu:
 
         elif state == config.BoardState.PLAYER_TURN:
             self.__current_text = self.__turn_text
-            self.__update_text_position()
             self.__current_buttons_list.append(self.__resign_button)
             self.__current_buttons_list.append(self.__offer_draw_button)
 
         elif state == config.BoardState.OFFER_DRAW:
             self.__current_text = self.__turn_text
-            self.__update_text_position()
             self.__current_buttons_list.append(self.__resign_button)
             self.__current_buttons_list.append(self.__cancel_draw_button)
 
         elif state == config.BoardState.OPPONENT_OFFER_DRAW:
             self.__current_text = self.__turn_text
-            self.__update_text_position()
             self.__current_buttons_list.append(self.__accept_draw_button)
             self.__current_buttons_list.append(self.__decline_draw_button)
 
         elif state == config.BoardState.WIN:
             self.__current_text = self.__win_text
-            self.__update_text_position()
 
         elif state == config.BoardState.LOSE:
             self.__current_text = self.__lose_text
-            self.__update_text_position()
 
         elif state == config.BoardState.DRAW:
             self.__current_text = self.__draw_text
-            self.__update_text_position()
 
         else:
             print("Invalid state!")
