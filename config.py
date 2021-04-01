@@ -23,7 +23,7 @@ class Config:
 
 class State:
     """
-        Application States Enumerator (I didn't find enumerators structures in python better than this)
+        Application States Enumerator
     """
     MAIN_MENU = 0
     OPTIONS_MENU = 1
@@ -35,7 +35,7 @@ class State:
 
 class BoardState:
     """
-        Board States Enumerator (I didn't find enumerators structures in python better than this)
+        Board States Enumerator
     """
     PLAYER_TURN = 0
     OFFER_DRAW = 1

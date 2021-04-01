@@ -1,6 +1,3 @@
-import config
-
-
 """
     Here are all the buttons classes used in the menus
 """
@@ -21,7 +18,6 @@ class Button:
         self._height = height
         self._text = new_text
         self._text_size = new_text_size
-        # self._text_width, self._text_height = config.Config.get_font_width_height(new_text, new_text_size)
         self._response = response
 
     def get_x(self):
@@ -66,7 +62,6 @@ class Button:
     def set_text(self, new_text, new_text_size):
         self._text = new_text
         self._text_size = new_text_size
-        # self._text_width, self._text_height = config.Config.get_font_width_height(new_text, new_text_size)
 
     def is_hover(self, mx, my):
         return self._x < mx < self._x + self._width and self._y < my < self._y + self._height

@@ -32,7 +32,7 @@ class BoardMenu:
 
         self.__restart_button = None
         self.__restart_button_text = "Restart"
-        self.__restart_button_response = responses.RestartResponse()
+        self.__restart_button_response = responses.RematchResponse()
 
         self.__leave_button = None
         self.__leave_button_text = "Leave"

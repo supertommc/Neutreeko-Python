@@ -12,7 +12,6 @@ class Menu:
         self._title_font_size = 70
         self._title_y = 100
         self._title_color = (0, 0, 0)
-        # self._title_text_width, _ = config.Config.get_font_width_height(self._title_text, self._title_font_size)
 
         # all buttons properties
 
@@ -158,7 +157,8 @@ class MainMenu(Menu):
 
 class OptionsMenu(Menu):
 
-    def __init__(self, initial_use_opening_bool, initial_depth_hint_index, initial_depth_bot_1_index, initial_depth_bot_2_index, initial_evaluation_index):
+    def __init__(self, initial_use_opening_bool, initial_depth_hint_index, initial_depth_bot_1_index,
+                 initial_depth_bot_2_index, initial_evaluation_index, initial_move_speed_index):
         Menu.__init__(self, "OPTIONS")
 
         self.__initial_use_opening_bool = initial_use_opening_bool
@@ -167,13 +167,14 @@ class OptionsMenu(Menu):
         self.__initial_depth_bot_2_index = initial_depth_bot_2_index
         self.__use_opening_book_index = int(initial_use_opening_bool)
         self.__initial_evaluation_index = initial_evaluation_index
+        self.__initial_move_speed_index = initial_move_speed_index
 
         self.__evaluation_values = ["RANDOM", "EASY", "MEDIUM", "HARD", "HARD++"]
 
         self.__depth_hint_slide_button = None
         self.__depth_hint_slide_button_prefix = "DEPTH HINT: "
         self.__depth_hint_slide_button_values = range(1, 10)
-        self.__depth_hint_slide_button_response = responses.SlideResponse(0)
+        self.__depth_hint_slide_button_response = responses.BotDepthSlideResponse(0)
 
         self.__evaluation_hint_toggle_button = None
         self.__evaluation_hint_toggle_button_prefix = "EVAL: "
@@ -183,7 +184,7 @@ class OptionsMenu(Menu):
         self.__depth_bot_1_slide_button = None
         self.__depth_bot_1_slide_button_prefix = "DEPTH BOT 1: "
         self.__depth_bot_1_slide_button_values = range(1, 10)
-        self.__depth_bot_1_slide_button_response = responses.SlideResponse(1)
+        self.__depth_bot_1_slide_button_response = responses.BotDepthSlideResponse(1)
 
         self.__evaluation_bot_1_toggle_button = None
         self.__evaluation_bot_1_toggle_button_prefix = "EVAL: "
@@ -193,7 +194,7 @@ class OptionsMenu(Menu):
         self.__depth_bot_2_slide_button = None
         self.__depth_bot_2_slide_button_prefix = "DEPTH BOT 2: "
         self.__depth_bot_2_slide_button_values = range(1, 10)
-        self.__depth_bot_2_slide_button_response = responses.SlideResponse(2)
+        self.__depth_bot_2_slide_button_response = responses.BotDepthSlideResponse(2)
 
         self.__evaluation_bot_2_toggle_button = None
         self.__evaluation_bot_2_toggle_button_prefix = "EVAL: "
@@ -201,9 +202,14 @@ class OptionsMenu(Menu):
         self.__evaluation_bot_2_toggle_button_response = responses.EvaluationToggleResponse(2)
 
         self.__opening_book_toggle_button = None
-        self.__opening_book_toggle_button_prefix = "OPENING BOOK: "
-        self.__opening_book_toggle_button_values = ["ON", "OFF"]
+        self.__opening_book_toggle_button_prefix = "BOOK: "
+        self.__opening_book_toggle_button_values = ["OFF", "ON"]
         self.__opening_book_toggle_button_response = responses.OpeningBookToggleResponse()
+
+        self.__speed_slide_button = None
+        self.__speed_slide_button_prefix = "SPEED: "
+        self.__speed_slide_button_values = range(1, 21)
+        self.__speed_slide_button_response = responses.SpeedSlideResponse()
 
         self.__back_button = None
         self.__back_button_text = "BACK"
@@ -301,10 +307,10 @@ class OptionsMenu(Menu):
         self._buttons_list.append(self.__evaluation_bot_2_toggle_button)
         button_y += self._buttons_height + self._buttons_vertical_offset
 
-        # fourth row [Opening Book]
+        # fourth row [Opening Book and Speed]
 
-        self.__opening_book_toggle_button = button.ToggleButton((self._large_buttons_x, button_y),
-                                                                self._large_buttons_width,
+        self.__opening_book_toggle_button = button.ToggleButton((self._left_small_buttons_x, button_y),
+                                                                self._small_buttons_width,
                                                                 self._buttons_height, self._buttons_color,
                                                                 self._buttons_background_color,
                                                                 self._buttons_pressed_color_offset,
@@ -314,6 +320,20 @@ class OptionsMenu(Menu):
                                                                 self.__initial_use_opening_bool,
                                                                 self.__opening_book_toggle_button_response)
         self._buttons_list.append(self.__opening_book_toggle_button)
+
+        self.__speed_slide_button = button.SlideButton((self._right_small_buttons_x, button_y),
+                                                       self._small_buttons_width,
+                                                       self._buttons_height, self._buttons_color,
+                                                       self._buttons_background_color,
+                                                       self._bar_color,
+                                                       self._buttons_pressed_color_offset,
+                                                       self.__speed_slide_button_prefix,
+                                                       self._buttons_font_size,
+                                                       self.__speed_slide_button_values,
+                                                       self.__initial_move_speed_index,
+                                                       self.__speed_slide_button_response)
+        self._buttons_list.append(self.__speed_slide_button)
+        self._slide_buttons_list.append(self.__speed_slide_button)
         button_y += self._buttons_height + self._buttons_vertical_offset
 
         # fifth row [Back]
@@ -346,6 +366,9 @@ class OptionsMenu(Menu):
 
     def get_opening_book_toggle_button(self):
         return self.__opening_book_toggle_button
+
+    def get_speed_slide_button(self):
+        return self.__speed_slide_button
 
     def get_back_button(self):
         return self.__back_button

@@ -13,8 +13,8 @@ class AI:
 
     WIN_SCORE = 10000
     LOSE_SCORE = -10000
-    MAX_SCORE_NOT_WIN = 5
-    MIN_SCORE_NOT_LOSE = -5
+    MAX_SCORE_NOT_WIN = 10
+    MIN_SCORE_NOT_LOSE = -10
 
     # Constructor
     def __init__(self, piece):
@@ -38,11 +38,14 @@ class AI:
         if difficulty_string == "RANDOM":
             self.__current_evaluation_function = self.evaluate_position_random
         elif difficulty_string == "EASY":
-            self.__current_evaluation_function = self.evaluate_position_center
+            self.__current_evaluation_function = self.evaluate_easy
         elif difficulty_string == "MEDIUM":
+            self.__current_evaluation_function = self.evaluate_position_center
+        elif difficulty_string == "HARD":
+            self.__current_evaluation_function = self.check_all_neighbours
+        elif difficulty_string == "HARD++":
             self.__current_evaluation_function = self.evaluate_position_all_combined
         else:
-            # TODO: Não sei se isto está bem assim e falta fazer para as outras dificuldades
             print("Not implement yet")
 
 
@@ -89,6 +92,9 @@ class AI:
                     val -= self.check_neighbours((i, j), game)
         return val
 
+    def evaluate_easy(self, game):
+        return 0
+
     # Combines all the evaluation functions (two-in-a-row, positional and basic) into a single one
     def evaluate_position_all_combined(self, game):
         val = 0
@@ -104,6 +110,7 @@ class AI:
         return val
 
     def evaluate_position_center(self, game):
+        val = 0
         for i in range(len(game)):
             for j in range(len(game[0])):
                 if game[i][j] == self.piece:
@@ -113,7 +120,7 @@ class AI:
         return val
 
     def evaluate_position_random(self, game):
-        return 0 + random.randint(AI.MIN_SCORE_NOT_LOSE, AI.MAX_SCORE_NOT_WIN)
+        return 0 + random.randint(AI.MIN_SCORE_NOT_LOSE + 1, AI.MAX_SCORE_NOT_WIN - 1)
 
     # Evaluates a board position
     def evaluate_position(self, piece, game, depth):

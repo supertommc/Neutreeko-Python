@@ -6,8 +6,15 @@ import pygame.mouse
 
 
 class ButtonView:
+
     @staticmethod
     def display(button, screen):
+        """ Display button in screen
+
+        :param button: Button object
+        :param screen: Pygame screen
+        :return:
+        """
 
         # draw button background
         offset = 0
@@ -26,8 +33,15 @@ class ButtonView:
 
 
 class SlideButtonView:
+
     @staticmethod
     def display(button, screen):
+        """ Display slide button in screen
+
+        :param button: Button object
+        :param screen: Pygame screen
+        :return:
+        """
 
         # draw button background
         offset = 0
@@ -58,8 +72,15 @@ class SlideButtonView:
 
 
 class MainMenuView:
+
     @staticmethod
     def display(main_menu, screen):
+        """ Display Main Menu in screen
+
+        :param main_menu: Menu object
+        :param screen: Pygame screen
+        :return:
+        """
 
         # display title
         my_font = pygame.font.Font(Config.FONT_PATH, main_menu.get_title_font_size())
@@ -75,8 +96,15 @@ class MainMenuView:
 
 
 class OptionsMenuView:
+
     @staticmethod
     def display(options_menu, screen):
+        """ Display Options Menu in screen
+
+        :param options_menu: Menu object
+        :param screen: Pygame screen
+        :return:
+        """
         # display title
         my_font = pygame.font.Font(Config.FONT_PATH, options_menu.get_title_font_size())
         text_image = my_font.render(options_menu.get_title_text(), True, options_menu.get_title_color())
@@ -87,6 +115,7 @@ class OptionsMenuView:
             SlideButtonView.display(options_menu.get_depth_slide_button(i), screen)
             ButtonView.display(options_menu.get_evaluation_toggle_button(i), screen)
         ButtonView.display(options_menu.get_opening_book_toggle_button(), screen)
+        SlideButtonView.display(options_menu.get_speed_slide_button(), screen)
         ButtonView.display(options_menu.get_back_button(), screen)
 
 
@@ -94,6 +123,12 @@ class PieceView:
 
     @staticmethod
     def display(piece, screen):
+        """ Display Piece image in screen
+
+        :param piece: Piece object
+        :param screen: Pygame screen
+        :return:
+        """
         if piece.get_player() == 1:
             black_piece_image_rect = Config.black_piece_image.get_rect()
             black_piece_image_rect = black_piece_image_rect.move(Config.get_circle_top_left_position(piece.get_x(), piece.get_y(), piece.get_radius()))
@@ -109,6 +144,12 @@ class ScoreBarView:
 
     @staticmethod
     def display(score_bar, screen):
+        """ Display ScoreBar in screen
+
+        :param score_bar: ScoreBar object
+        :param screen: Pygame screen
+        :return:
+        """
         black_pieces_color = config.Config.BLACK_PIECES_COLOR
         white_pieces_color = config.Config.WHITE_PIECES_COLOR
 
@@ -123,6 +164,12 @@ class PlayerMenuView:
 
     @staticmethod
     def display(player_menu, screen):
+        """ Display Player Menu in screen
+
+        :param player_menu: PlayerMenu object
+        :param screen: Pygame screen
+        :return:
+        """
 
         my_font = pygame.font.Font(Config.FONT_PATH, player_menu.get_text_font_size())
         text_image = my_font.render(player_menu.get_current_text(), True, player_menu.get_text_color())
@@ -137,6 +184,12 @@ class BoardMenuView:
 
     @staticmethod
     def display(board_menu, screen):
+        """ Display Board Menu in screen
+
+        :param board_menu: BoardMenu object
+        :param screen: Pygame screen
+        :return:
+        """
 
         # display buttons
         for button in board_menu.get_buttons():
@@ -147,6 +200,12 @@ class HintView:
 
     @staticmethod
     def display(hint, screen):
+        """ Display Hint in screen
+
+        :param hint: Hint object
+        :param screen: Pygame screen
+        :return:
+        """
 
         # display hint line
         pygame.draw.line(screen, hint.get_line_color(), hint.get_start_move_position(), hint.get_dest_move_position())
@@ -156,8 +215,12 @@ class BoardView:
 
     @staticmethod
     def display(game_board, screen):
+        """ Display Board in screen
 
-
+        :param game_board: Board object
+        :param screen: Pygame screen
+        :return:
+        """
 
         # display board
         image_rect = Config.board_image.get_rect()
@@ -179,6 +242,11 @@ class BoardView:
 
 
 def draw(screen):
+    """ Update application state and move animations and draw frame
+
+    :param screen: Pygame screen
+    :return:
+    """
 
     neutreeko.update()
 
@@ -196,6 +264,8 @@ def draw(screen):
 
 
 def main():
+    """ Application loop to update screen and catch events
+    """
     pygame.init()
     screen = pygame.display.set_mode((Config.SCREEN_WIDTH, Config.SCREEN_HEIGHT))
     pygame.display.set_caption("NEUTREEKO")

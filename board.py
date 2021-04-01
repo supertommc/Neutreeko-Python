@@ -4,8 +4,6 @@ from ai import AI
 import config
 from playermenu import PlayerMenu
 from boardmenu import BoardMenu
-from pprint import pprint
-
 
 """
     Here are all object classes used in the board except board menu and players menus
@@ -117,8 +115,8 @@ class Tile:
 
 class Move:
 
-    def __init__(self):
-        self.__move_speed = 30
+    def __init__(self, speed):
+        self.__speed = speed
 
         self.__start_tile = None
         self.__dest_tile = None
@@ -133,6 +131,9 @@ class Move:
 
     def set_piece(self, piece):
         self.__piece = piece
+
+    def set_speed(self, new_speed):
+        self.__speed = new_speed
 
     def get_start_tile(self):
         return self.__start_tile
@@ -176,7 +177,7 @@ class Move:
         piece_x, piece_y = self.__piece.get_position()
         direction_x, direction_y = self.__direction
 
-        self.__piece.set_position((piece_x + direction_x * self.__move_speed, piece_y + direction_y * self.__move_speed))
+        self.__piece.set_position((piece_x + direction_x * self.__speed, piece_y + direction_y * self.__speed))
 
     def piece_reach_dest_position(self):
         """ Verify if piece reach its destiny position
@@ -184,8 +185,8 @@ class Move:
         piece_x, piece_y = self.__piece.get_position()
         dest_x, dest_y = self.__dest_tile.get_piece_position()
         direction_x, direction_y = self.__direction
-        offset_x = direction_x * self.__move_speed
-        offset_y = direction_y * self.__move_speed
+        offset_x = direction_x * self.__speed
+        offset_y = direction_y * self.__speed
 
         reach_x = ((direction_x < 0) and (piece_x < dest_x - offset_x)) or ((direction_x > 0) and (piece_x > dest_x - offset_x))
         reach_y = ((direction_y < 0) and (piece_y < dest_y - offset_y)) or ((direction_y > 0) and (piece_y > dest_y - offset_y))
@@ -224,7 +225,6 @@ class ScoreBar:
         self.__height = height
         self.__current_bar_height = 0.5 * self.__height
         self.__range_values = AI.MAX_SCORE_NOT_WIN - AI.MIN_SCORE_NOT_LOSE
-        self.__winning_offset = 5
 
     def get_x(self):
         return self.__x
@@ -253,8 +253,8 @@ class ScoreBar:
     def update(self, player, score):
         """ Update bar based on player score
 
-        :param player:
-        :param score:
+        :param player: player turn
+        :param score: player score to use in the bar
         :return:
         """
         ratio = -1
@@ -265,7 +265,7 @@ class ScoreBar:
                 ratio = 0.0
             else:
                 score_normalize = AI.MAX_SCORE_NOT_WIN + score
-                ratio = (score_normalize / (self.__range_values + self.__winning_offset))
+                ratio = score_normalize / self.__range_values
 
         elif player == 2:
             if score >= AI.WIN_SCORE:
@@ -274,7 +274,7 @@ class ScoreBar:
                 ratio = 1.0
             else:
                 score_normalize = AI.MAX_SCORE_NOT_WIN - score
-                ratio = (score_normalize / (self.__range_values + self.__winning_offset))
+                ratio = score_normalize / self.__range_values
 
         self.__current_bar_height = self.__height * ratio
 
@@ -300,7 +300,7 @@ class Hint:
 
 class Board:
 
-    def __init__(self, opening_book, state):
+    def __init__(self, opening_book, state, initial_speed):
         self.__opening_book = opening_book
         self.__initial_game_state = state
         self.__game_state = state
@@ -324,13 +324,7 @@ class Board:
         self.__played_states = {}
         self.__played_moves = []
 
-        self.__move = Move()
-
-        # self.__bot_1 = AI(1)
-        # self.__bot_2 = AI(2)
-        #
-        # self.__hint_1 = AI(1)
-        # self.__hint_2 = AI(2)
+        self.__move = Move(initial_speed)
 
         self.__player_1_resign = False
         self.__player_2_resign = False
@@ -372,7 +366,7 @@ class Board:
         return self.__x * (col + 1), self.__y * (row + 1)
 
     def __insert_pieces_from_state(self):
-        """ Insert piece in board tiles
+        """ Insert pieces in board tiles
         """
         i = 0
         for row in range(len(self.__game_state)):
@@ -452,10 +446,6 @@ class Board:
         self.__game_state = [[0] * 5 for _ in range(5)]
 
         for tile in self.__tiles:
-            if tile.get_piece() is not None:
-                print("Coords: {} ; Piece: {}".format(tile.get_coords(), tile.get_piece().get_player()))
-            else:
-                print("Coords: {} ; Piece: {}".format(tile.get_coords(), None))
             self.__game_state[tile.get_coord_y()][tile.get_coord_x()] = tile.get_piece_player()
 
     def __change_turn(self):
@@ -472,20 +462,14 @@ class Board:
             self.__player_2_menu.update(config.BoardState.WAIT)
 
     def finish_piece_move(self):
-        """ Finish piece move and call methods related to it
+        """ Finish piece move, store move, update game state and change player turn
         """
         self.__store_played_states()
         self.__store_move(self.__move.get_coords())
         self.__move.finish()
         self.__update_game_state()
-
-        score = None
-
-        # if self.__player_turn == 1:
-        #     score = self.__bot_1.evaluate_position(0, self.__game_state, self.__bot_1)
-
-        # self.__score_bar.update(self.__player_turn)
         self.__change_turn()
+
         self.__hint = None
 
     def __apply_move(self, move):
@@ -538,9 +522,6 @@ class Board:
 
         result = GameUtils.check_game_over_full(self.__game_state)
 
-        print("Result: {}".format(result))
-        pprint(self.__game_state)
-
         if (result == 1) or self.__player_2_resign:
             self.__player_1_menu.update(config.BoardState.WIN)
             self.__player_2_menu.update(config.BoardState.LOSE)
@@ -590,7 +571,13 @@ class Board:
         self.__played_moves.append(move)
 
     def generate_hint(self, depth, hints):
-        score, move = hints[self.__player_turn].minimax_alpha_beta_with_move_faster(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
+        """ Generate a hint for the corresponding player turn and create a Hint object to be drawn on the board
+
+        :param depth: depth of the hint
+        :param hints: hint bots of player 1 and player 2
+        :return:
+        """
+        score, move = hints[self.__player_turn].minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depth, AI.MIN, AI.MAX)
         start_x, start_y, dest_x, dest_y = move
 
         start_position = None
@@ -606,9 +593,17 @@ class Board:
         self.__hint = Hint(start_position, dest_position)
 
     def apply_bot_move(self, depths_bots, player_bots, opening_book):
+        """ Apply the bot move. If the opening book is active and set, the bot will use the opening database sequence,
+        else it will generate a move using minimax with alpha beta cuts
+
+        :param depths_bots: depth of the bot corresponding to player 1 and player 2 dictionary
+        :param player_bots: player 1 bot and player 2 dictionary
+        :param opening_book: opening book object which finds the next sequence move
+        :return:
+        """
 
         move = None
-        score = None
+        score = 0
 
         if opening_book is None:
             self.__opening_book_active = False
@@ -619,19 +614,11 @@ class Board:
             if move is None:
                 self.__opening_book_active = False
 
-            if self.__opening_book_active:
-                GameUtils.make_move(self.__game_state, move)
-
-                score = player_bots[self.__player_turn].evaluate_position(self.__player_turn, self.__game_state, depths_bots[self.__player_turn])
-
-                GameUtils.unmake_move(self.__game_state, move)
-
         if not self.__opening_book_active:
             score, move = player_bots[self.__player_turn].minimax_alpha_beta_with_move_faster_order(True, self.__player_turn, self.__game_state, depths_bots[self.__player_turn], AI.MIN, AI.MAX)
             print("Move: " + str(move) + " with a score of " + str(score) + " of player: " + str(self.__player_turn))
 
         self.__score_bar.update(self.__player_turn, score)
-        print("Move: {}".format(move))
         self.__apply_move(move)
         self.__state = config.BoardState.PLAYER_TURN
 
@@ -651,6 +638,10 @@ class Board:
         if not self.__move.is_start_tile_selected():
             for tile in self.__tiles:
                 if tile.is_hover(mx, my):
+                    if tile.get_piece() is None:
+                        return
+                    if tile.get_piece().get_player() != self.__player_turn:
+                        return
                     self.__move.set_start_tile(tile)
                     print("Start tile: {}".format(self.__move.get_start_tile().get_coords()))
                     break
@@ -658,6 +649,8 @@ class Board:
         elif not self.__move.is_dest_tile_selected():
             for tile in self.__tiles:
                 if tile.is_hover(mx, my):
+                    if tile.get_coords() == self.__move.get_start_tile().get_coords():
+                        return
                     self.__move.set_dest_tile(tile)
                     print("Dest tile: {}".format(self.__move.get_dest_tile().get_coords()))
                     break
