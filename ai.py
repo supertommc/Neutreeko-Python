@@ -1,5 +1,4 @@
 from gameUtils import GameUtils
-from timeit import default_timer as timer
 import random
 from moveGenerator import MoveGenerator
 
@@ -33,6 +32,7 @@ class AI:
         self.num_calls = 0
         self.__current_evaluation_function = self.evaluate_position_random
 
+    # Sets the bot's current evaluation function based on the difficulty selected by the player
     def change_current_evaluation_function(self, difficulty_string):
 
         if difficulty_string == "RANDOM":
@@ -142,7 +142,7 @@ class AI:
             return res, 0
 
         pos_scores = []
-        moves = moveGenerator.generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         for move in moves:
             GameUtils.make_move(game, move)
@@ -167,7 +167,7 @@ class AI:
         if res >= 50 or res <= -50 or depth == 0:
             return res, 0
         
-        moves = moveGenerator.generate_all_moves(game, current_player)
+        moves = MoveGenerator.generate_all_moves(game, current_player)
 
         if is_max:
             score = self.MIN
